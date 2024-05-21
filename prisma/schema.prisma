@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  username String    @id @db.VarChar(50)
+  email    String    @unique @db.VarChar(60)
+  password String    @db.VarChar(100)
+  name     String    @db.VarChar(100)
+  // token    String?   @db.VarChar(100)
+  sessions Session[] @relation(name: "OnlineUsers")
+  Contact  Contact?
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  valid     Boolean  @default(true)
+  userAgent String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(name: "OnlineUsers", fields: [username], references: [username], onDelete: Cascade)
+  username  String   @db.VarChar(50)
+
+  @@map("sessions")
+}
+
+model Contact {
+  id            Int             @id @default(autoincrement())
+  username      String          @unique @db.VarChar(50)
+  memberId      String          @unique @db.VarChar(30)
+  firstName     String          @db.VarChar(50)
+  lastName      String?         @db.VarChar(50)
+  email         String?         @db.VarChar(50)
+  phone         String?         @db.VarChar(20)
+  fullAddress   String?         @db.VarChar(200)
+  NIP           String?         @db.VarChar(30)
+  // memberg       String          @db.VarChar(30)
+  User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
+  Addresses     Address[]
+  MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
+  memberTypeId  Int?
+  Unit          Unit?           @relation(fields: [unitId], references: [id])
+  unitId        Int?
+  SubUnit       SubUnit?        @relation(fields: [subUnitId], references: [id])
+  subUnitId     Int?
+  SavingAccount SavingAccount[]
+  LoanAccount   LoanAccount[]
+
+  @@map("contacts")
+}
+
+model Address {
+  id         Int     @id @default(autoincrement())
+  street     String  @db.VarChar(200)
+  city       String? @db.VarChar(50)
+  province   String? @db.VarChar(50)
+  country    String  @db.VarChar(50)
+  postalCode String  @db.VarChar(10)
+  contact    Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contactId  Int
+
+  @@map("addresses")
+}
+
+// Buku Tabungan
+model SavingAccount {
+  id                       Int          @id @default(autoincrement())
+  Contact                  Contact      @relation(fields: [memberId], references: [memberId])
+  memberId                 String       @db.VarChar(30)
+  register_date            DateTime     @db.Date //tanggal registrasi
+  principalDeposit         Decimal      @default(0) @db.Decimal(16, 2) //Setoran Pokok
+  mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2) //setoran wajib
+  voluntaryDeposit         Decimal      @default(0) @db.Decimal(16, 2) //setoran sukarela
+  otherDeposit             Decimal      @default(0) @db.Decimal(16, 2) //setoran lainnya
+  savingAmount             Decimal      @default(0) @db.Decimal(16, 2) //saldo tabungan
+  voluntaryWithdrawalLimit Decimal      @default(0) @db.Decimal(16, 2) //batas penarikan setoran sukarela
+  otherWithdrawalLimit     Decimal      @default(0) @db.Decimal(16, 2) //batas penarikan setoran lainnya
+  withdrawalLimit          Decimal      @default(0) @db.Decimal(16, 2) //total batas penarikan
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+  Withdrawal               Withdrawal[]
+  Deposit                  Deposit[]
+
+  @@map("saving_accounts")
+}
+
+// Setoran
+model Deposit {
+  id               Int           @id @default(autoincrement())
+  SavingAccount    SavingAccount @relation(fields: [savingAccountId], references: [id])
+  savingAccountId  Int
+  deposit_date     DateTime      @db.Date //tanggal penarikan
+  principalDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran pokok
+  mandatoryDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran wajib
+  voluntaryDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran sukarela
+  otherDeposit     Decimal       @default(0) @db.Decimal(16, 2) //setoran lainnya
+  depositAmount    Decimal       @default(0) @db.Decimal(16, 2) //total setoran
+
+  @@map("deposits")
+}
+
+// Penarikan
+model Withdrawal {
+  id                  Int           @id @default(autoincrement())
+  SavingAccount       SavingAccount @relation(fields: [savingAccountId], references: [id])
+  savingAccountId     Int
+  withdrawal_date     DateTime      @db.Date //tanggal penarikan
+  voluntaryWithdrawal Decimal       @default(0) @db.Decimal(16, 2) //tarikan simpanan sukarela
+  otherWithdrawal     Decimal       @default(0) @db.Decimal(16, 2) //tarikan simpanan lainnya
+  withdrawalAmount    Decimal       @default(0) @db.Decimal(16, 2) //total tarikan
+
+  @@map("withdrawals")
+}
+
+// Rekening Pinjaman
+model LoanAccount {
+  id                   Int           @id @default(autoincrement())
+  Contact              Contact       @relation(fields: [memberId], references: [memberId])
+  memberId             String        @db.VarChar(30)
+  register_date        DateTime      @db.Date //tanggal registrasi
+  loanAmount           Decimal       @default(0) @db.Decimal(16, 2) //Total Pinjaman
+  loanTerm             Int           @default(12) @db.SmallInt //Jangka waktu pinjaman
+  interestPercent      Int           @default(0) @db.TinyInt //presentase bunga
+  installmentValue     Decimal       @default(0) @db.Decimal(16, 2) //nilai angsuran
+  installmentPrincipal Decimal       @default(0) @db.Decimal(16, 2) //Pokok Angsuran
+  installmentInterest  Decimal       @default(0) @db.Decimal(16, 2) //bunga Angsuran
+  principalPaid        Decimal       @default(0) @db.Decimal(16, 2) //pokok terbayar
+  interestPaid         Decimal       @default(0) @db.Decimal(16, 2) //bunga terbayar
+  paidValue            Decimal       @default(0) @db.Decimal(16, 2) //jumlah terbayar
+  principalBalance     Decimal       @default(0) @db.Decimal(16, 2) //saldo pokok angsuran
+  interestBalance      Decimal       @default(0) @db.Decimal(16, 2) //saldo bunga angsuran
+  loanBalance          Decimal       @default(0) @db.Decimal(16, 2) //saldo pinjaman
+  LoanPayment          LoanPayment[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@map("loan_accounts")
+}
+
+// Pembayaran Angsuran
+model LoanPayment {
+  id             Int         @id @default(autoincrement())
+  LoanAccount    LoanAccount @relation(fields: [loanAccountId], references: [id])
+  loanAccountId  Int
+  payment_date   DateTime    @db.Date //tanggal pembayaran angsuran
+  installmentTo  Int         @default(0) @db.SmallInt //angsuran ke
+  principalValue Decimal     @default(0) @db.Decimal(16, 2) //Pokok Angsuran
+  interestValue  Decimal     @default(0) @db.Decimal(16, 2) //bunga Angsuran
+  amount         Decimal     @default(0) @db.Decimal(16, 2) //total Angsuran
+
+  @@map("loan_payments")
+}
+
+model MemberType {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(30)
+  Contact Contact[]
+
+  @@map("member_types")
+}
+
+model Unit {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(30)
+  Contact Contact[]
+
+  @@map("units")
+}
+
+model SubUnit {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(30)
+  Contact Contact[]
+
+  @@map("sub_units")
+}
+
+// enum Role {
+//   USER
+//   ADMIN
+//   SUPERVISOR
+//   MANAGER
+//   ROOT
+// }
+
+// enum AccountLevel {
+//   ROOT
+//   GROUP
+//   SUB_GROUP
+//   CLUSTER
+//   SUB_CLUSTER
+//   UNIT_CLUSTER
+//   DETAIL
+// }
+
+// enum GroupAccount {
+//   GROUP
+//   DETAIL
+// }
+
+// enum VerificationStatus {
+//   Open
+//   Submitted
+//   Released
+//   Approved
+//   Rejected
+//   Posted
+//   Closed
+// }
+
+// enum VerificationLevel {
+//   ADMIN
+//   SUPERVISOR
+//   MANAGER
+// }

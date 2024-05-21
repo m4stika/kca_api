@@ -1,0 +1,33 @@
+### create
+POST http://localhost:7000/api/pelayanan/contract-types
+Content-Type: application/json
+
+{
+	"name" : "Jasa Pekerjaan Tehnik",
+	"revenueId" : "400002",
+	"collectionReceivablesId" : "112112",
+	"assignmentReceivablesId" : "112122"
+}
+
+### get
+GET  http://localhost:7000/api/pelayanan/contract-types
+Content-Type: application/json
+
+### update
+PUT http://localhost:7000/api/pelayanan/contract-types/clv1p7r8000009sniqs70k9nw
+Content-Type: application/json
+
+{
+	"name" : "Jasa Pekerjaan Tehnik updatad",
+	"revenueId" : "400002",
+	"collectionReceivablesId" : "112112",
+	"assignmentReceivablesId" : "112122"
+}
+
+### delete
+DELETE  http://localhost:7000/api/pelayanan/contract-types/clv107ej40001wk8waca71hxb
+Content-Type: application/json
+
+### search
+GET  http://localhost:7000/api/contacts?page=1
+Content-Type: application/json

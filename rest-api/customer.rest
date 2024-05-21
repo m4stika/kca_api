@@ -1,0 +1,31 @@
+### create
+POST http://localhost:7000/api/pelayanan/customers
+Content-Type: application/json
+
+{
+	"name": "PLN Persero Area Denpasar",
+	"address": "denpasar",
+	"email": "plndenpasar@pln.co.id",
+	"phone": "-",
+	"npwp": "-"
+}
+
+### get all
+GET  http://localhost:7000/api/pelayanan/customers
+Content-Type: application/json
+
+### update
+PUT http://localhost:7000/api/pelayanan/customers/clv6stjiu00001u9ef8f1953c
+Content-Type: application/json
+
+{
+	"name": "PLN Persero distribusi",
+	"address": "Jalan Letda tantular",
+	"email": "plndistribusi@pln.co.id",
+	"phone": "0361-",
+	"npwp": "-"
+}
+
+### Delete
+DELETE  http://localhost:7000/api/pelayanan/customers/clv6stjiu00001u9ef8f1953cc
+Content-Type: application/json

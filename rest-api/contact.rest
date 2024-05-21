@@ -1,0 +1,33 @@
+### create
+POST http://localhost:7000/api/contacts/
+Content-Type: application/json
+
+{
+	"firstName": "mastenk",
+	"lastName": "ketut",
+	"email" : "mastenk@gmail.com",
+	"phone": "08773888"
+}
+
+### get
+GET  http://localhost:7000/api/contacts/3
+Content-Type: application/json
+
+### update
+PUT http://localhost:7000/api/contacts/1
+Content-Type: application/json
+
+{
+	"firstName": "mastika updated",
+	"lastName": "ketut",
+	"email" : "mastika@gmail.com",
+	"phone": "811899"
+}
+
+### delete
+DELETE  http://localhost:7000/api/contacts/134234
+Content-Type: application/json
+
+### search
+GET  http://localhost:7000/api/contacts?page=1
+Content-Type: application/json

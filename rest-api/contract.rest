@@ -1,0 +1,88 @@
+### create
+POST http://localhost:7000/api/pelayanan/contracts/
+Content-Type: application/json
+
+{
+"contractNo": "001",
+"description": "Kontrak dengan Distribusi bali",
+"contractValue": 1000000000,
+"includePPN": true,
+"percentPPN": 11,
+"contractDate": "2024-01-10",
+"validityPeriod": "2024-04-30",
+"customerId": "clv6stjiu00001u9ef8f1953c",
+"contractTypeId": "clv107ej40001wk8waca71hxb"
+}
+
+### get
+GET  http://localhost:7000/api/pelayanan/contracts/clv6ti4ic0001zvl7l28w7o9p
+Content-Type: application/json
+
+
+### get by verification status
+GET  http://localhost:7000/api/pelayanan/contracts/status/Rejected
+Content-Type: application/json
+
+### update
+PUT http://localhost:7000/api/pelayanan/contracts/clv6ti4ic0001zvl7l28w7o9p
+Content-Type: application/json
+
+{
+"contractNo": "001",
+"description": "Kontrak dengan Distribusi bali",
+"contractValue": "1000000000.00",
+"includePPN": true,
+"percentPPN": 11,
+"contractDate": "2024-01-10",
+"validityPeriod": "2024-04-30",
+"customerId": "clv6stjiu00001u9ef8f1953c",
+"contractTypeId": "clv107ej40001wk8waca71hxb"
+}
+
+### delete
+DELETE  http://localhost:7000/api/pelayanan/contracts/clv6t30nc00041u9evyza262233
+Content-Type: application/json
+
+### get pagination
+GET  http://localhost:7000/api/pelayanan/contracts/pagination?page=1&customer=pln&contractNo=001
+Content-Type: application/json
+
+### submit
+PATCH   http://localhost:7000/api/pelayanan/contracts/submit
+Content-Type: application/json
+
+["clv6ti4ic0001zvl7l28w7o9p"]
+
+### approval
+PATCH   http://localhost:7000/api/pelayanan/contracts/approval
+Content-Type: application/json
+
+{
+	"id": "clv6ti4ic0001zvl7l28w7o9p",
+	"verificationStatus": "Rejected",
+	"rejectedRemark": "kesalahan tanggal"
+}
+
+### summary
+GET  http://localhost:7000/api/pelayanan/contracts/summary
+Content-Type: application/json
+
+
+### amendment
+POST http://localhost:7000/api/pelayanan/contracts/amendment
+Content-Type: form-data; boundary=masBoundary
+
+--masBoundary
+Content-Disposition: application/json
+
+{
+	"amendmentFileName": "surat-perjanjian",
+	"id": "dfasdfasdf"
+}
+
+--masBoundary
+Content-Disposition: form-data; name="image"; filename="masfamily_bg.jpg"
+Content-Type: image/jpeg
+
+< ../../assets/files/masfamily_bg.jpg
+--masBoundary--

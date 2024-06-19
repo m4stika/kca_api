@@ -99,8 +99,15 @@ export class AuthService {
       request,
     );
 
-    const user = await this.prisma.user.findUnique({
-      where: { username: loginRequest.username },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: loginRequest.username },
+          { email: loginRequest.username },
+          // { Contact: { NIP: loginRequest.username } },
+          { Member: { memberId: loginRequest.username } },
+        ],
+      },
       select: {
         username: true,
         password: true,

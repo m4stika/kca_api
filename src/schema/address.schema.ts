@@ -26,7 +26,7 @@ export class RemoveAddressRequest extends GetAddressRequest {}
 
 export class AddressValidation {
   private static readonly baseSchema = z.object({
-    contactId: z.number().min(1).positive(),
+    memberId: z.number().min(1).positive(),
     street: z.string().min(1).max(200),
     city: z.string().min(1).max(50).nullish(),
     province: z.string().min(1).max(50).nullish(),
@@ -37,7 +37,7 @@ export class AddressValidation {
   static readonly CREATE = this.baseSchema;
 
   static readonly GET = z.object({
-    contactId: z.number().min(1).positive(),
+    memberId: z.number().min(1).positive(),
     addressId: z.number().min(1).positive(),
   });
 
@@ -46,7 +46,7 @@ export class AddressValidation {
   });
 
   static readonly REMOVE = z.object({
-    contactId: z.number().min(1).positive(),
+    memberId: z.number().min(1).positive(),
     addressId: z.number().min(1).positive(),
   });
 }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ContactModule } from '../contact/contact.module';
+import { ContactModule } from '../member/member.module';
 import { AddressController } from './address.controller';
 import { AddressService } from './address.service';
 

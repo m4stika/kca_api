@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ZodDecimalPositive } from './helpers/numeric.helper';
 import { UserValidation } from './user.schema';
 /*
 export class CreateContactRequest {
@@ -22,9 +23,9 @@ export class SearchContactRequest {
   size: number;
 }
  */
-export class ContactValidation {
+export class MemberValidation {
   private static readonly baseSchema = z.object({
-    username: z.string().min(1).max(50),
+    // username: z.string().min(1).max(50),
     memberId: z.string().min(1).max(30),
     firstName: z.string().min(1).max(100),
     lastName: z.string().min(1).max(100).nullish(),
@@ -36,10 +37,13 @@ export class ContactValidation {
     subUnitId: z.number().positive().nullish(),
   });
 
-  static readonly CREATE = this.baseSchema;
+  static readonly CREATE = this.baseSchema.extend({
+    voucherAmount: z.number(),
+  });
 
   static readonly UPDATE = this.baseSchema.extend({
     id: z.number().positive(),
+    voucherAmount: z.number(),
   });
 
   static readonly SEARCH = z.object({
@@ -52,11 +56,13 @@ export class ContactValidation {
   });
 }
 
-const contactResponse = ContactValidation.UPDATE.extend({
+const MemberResponse = MemberValidation.UPDATE.extend({
+  voucherAmount: ZodDecimalPositive(),
+  username: z.string().min(1).max(50),
   User: UserValidation.REGISTER,
 });
 
-export type CreateContactRequest = z.infer<typeof ContactValidation.CREATE>;
-export type UpdateContactRequest = z.infer<typeof ContactValidation.UPDATE>;
-export type ContactResponse = z.infer<typeof contactResponse>;
-export type SearchContactRequest = z.infer<typeof ContactValidation.SEARCH>;
+export type CreateMemberRequest = z.infer<typeof MemberValidation.CREATE>;
+export type UpdateMemberRequest = z.infer<typeof MemberValidation.UPDATE>;
+export type MemberResponse = z.infer<typeof MemberResponse>;
+export type SearchMemberRequest = z.infer<typeof MemberValidation.SEARCH>;

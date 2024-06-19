@@ -12,7 +12,7 @@ import {
   UpdateAddressRequest,
 } from 'src/schema/address.schema';
 import { Logger } from 'winston';
-import { ContactService } from '../contact/contact.service';
+import { ContactService } from '../member/member.service';
 
 @Injectable()
 export class AddressService {
@@ -26,7 +26,7 @@ export class AddressService {
   toAddressResponse(address: Address): AddressResponse {
     return {
       id: address.id,
-      contactId: address.contactId,
+      memberId: address.memberId,
       street: address.street,
       city: address.city,
       country: address.country,
@@ -36,11 +36,11 @@ export class AddressService {
   }
 
   async checkAddressMustExist(
-    contactId: number,
+    memberId: number,
     addressId: number,
   ): Promise<Address> {
     const address = await this.prisma.address.findFirst({
-      where: { id: addressId, contactId },
+      where: { id: addressId, memberId },
     });
 
     if (!address) {
@@ -59,9 +59,9 @@ export class AddressService {
       request,
     );
 
-    await this.contactService.checkContactMustExist(
+    await this.contactService.checkMemberMustExist(
       user.username,
-      request.contactId,
+      request.memberId,
     );
 
     const address = await this.prisma.address.create({
@@ -77,13 +77,13 @@ export class AddressService {
       request,
     );
 
-    await this.contactService.checkContactMustExist(
+    await this.contactService.checkMemberMustExist(
       user.username,
-      request.contactId,
+      request.memberId,
     );
 
     const address = await this.checkAddressMustExist(
-      getRequest.contactId,
+      getRequest.memberId,
       getRequest.addressId,
     );
 
@@ -99,18 +99,18 @@ export class AddressService {
       request,
     );
 
-    await this.contactService.checkContactMustExist(
+    await this.contactService.checkMemberMustExist(
       user.username,
-      request.contactId,
+      request.memberId,
     );
 
     let address = await this.checkAddressMustExist(
-      updateRequest.contactId,
+      updateRequest.memberId,
       updateRequest.id,
     );
 
     address = await this.prisma.address.update({
-      where: { id: address.id, contactId: address.contactId },
+      where: { id: address.id, memberId: address.memberId },
       data: updateRequest,
     });
 
@@ -126,28 +126,28 @@ export class AddressService {
       request,
     );
 
-    await this.contactService.checkContactMustExist(
+    await this.contactService.checkMemberMustExist(
       user.username,
-      removeRequest.contactId,
+      removeRequest.memberId,
     );
 
     let address = await this.checkAddressMustExist(
-      removeRequest.contactId,
+      removeRequest.memberId,
       removeRequest.addressId,
     );
 
     address = await this.prisma.address.delete({
-      where: { id: address.id, contactId: address.contactId },
+      where: { id: address.id, memberId: address.memberId },
     });
 
     return this.toAddressResponse(address);
   }
 
-  async getAll(user: User, contactId: number): Promise<AddressResponse[]> {
-    await this.contactService.checkContactMustExist(user.username, contactId);
+  async getAll(user: User, memberId: number): Promise<AddressResponse[]> {
+    await this.contactService.checkMemberMustExist(user.username, memberId);
 
     const addresses = await this.prisma.address.findMany({
-      where: { contactId },
+      where: { memberId },
     });
 
     return addresses.map((address) => this.toAddressResponse(address));

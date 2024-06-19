@@ -1,0 +1,18 @@
+### create
+POST http://192.168.10.2:7000/api/saving-account/
+Content-Type: application/json
+
+{
+	"contactId": 1,
+	"register_date": "2024-01-10",
+	"principalDeposit": 1200000,
+	"mandatoryDeposit": 500000,
+	"voluntaryWithdrawalLimit": 200000,
+	"otherWithdrawalLimit": 150000
+}
+	### "otherDeposit": 0,
+	###"voluntaryDeposit": 0,
+
+### get
+GET  http://192.168.10.2:7000/api/saving-account/1
+Content-Type: application/json

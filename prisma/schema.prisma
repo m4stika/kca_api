@@ -20,7 +20,7 @@ model User {
   name     String    @db.VarChar(100)
   // token    String?   @db.VarChar(100)
   sessions Session[] @relation(name: "OnlineUsers")
-  Contact  Contact?
+  Member   Member?
 
   @@map("users")
 }
@@ -37,7 +37,29 @@ model Session {
   @@map("sessions")
 }
 
-model Contact {
+// model Contact {
+//   id           Int     @id @default(autoincrement())
+//   username     String  @unique @db.VarChar(50)
+//   memberId     String  @unique @db.VarChar(30)
+//   firstName    String  @db.VarChar(50)
+//   lastName     String? @db.VarChar(50)
+//   email        String? @db.VarChar(50)
+//   phone        String? @db.VarChar(20)
+//   fullAddress  String? @db.VarChar(200)
+//   NIP          String? @db.VarChar(30)
+//   // memberg       String          @db.VarChar(30)
+//   User         User    @relation(fields: [username], references: [username], onDelete: Cascade)
+//   memberTypeId Int?
+//   unitId       Int?
+//   subUnitId    Int?
+//   // Addresses     Address[]
+//   // SavingAccount SavingAccount[]
+//   // LoanAccount   LoanAccount[]
+
+//   @@map("contacts")
+// }
+
+model Member {
   id            Int             @id @default(autoincrement())
   username      String          @unique @db.VarChar(50)
   memberId      String          @unique @db.VarChar(30)
@@ -47,7 +69,7 @@ model Contact {
   phone         String?         @db.VarChar(20)
   fullAddress   String?         @db.VarChar(200)
   NIP           String?         @db.VarChar(30)
-  // memberg       String          @db.VarChar(30)
+  voucherAmount Decimal         @default(0) @db.Decimal(16, 2)
   User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
   Addresses     Address[]
   MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
@@ -59,7 +81,7 @@ model Contact {
   SavingAccount SavingAccount[]
   LoanAccount   LoanAccount[]
 
-  @@map("contacts")
+  @@map("members")
 }
 
 model Address {
@@ -69,8 +91,10 @@ model Address {
   province   String? @db.VarChar(50)
   country    String  @db.VarChar(50)
   postalCode String  @db.VarChar(10)
-  contact    Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  contactId  Int
+  // contact    Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  // contactId  Int
+  Member     Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId   Int
 
   @@map("addresses")
 }
@@ -78,8 +102,8 @@ model Address {
 // Buku Tabungan
 model SavingAccount {
   id                       Int          @id @default(autoincrement())
-  Contact                  Contact      @relation(fields: [memberId], references: [memberId])
-  memberId                 String       @db.VarChar(30)
+  // Contact                  Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  // contactId                Int
   register_date            DateTime     @db.Date //tanggal registrasi
   principalDeposit         Decimal      @default(0) @db.Decimal(16, 2) //Setoran Pokok
   mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2) //setoran wajib
@@ -93,6 +117,8 @@ model SavingAccount {
   updatedAt                DateTime     @updatedAt
   Withdrawal               Withdrawal[]
   Deposit                  Deposit[]
+  Member                   Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId                 Int
 
   @@map("saving_accounts")
 }
@@ -128,8 +154,9 @@ model Withdrawal {
 // Rekening Pinjaman
 model LoanAccount {
   id                   Int           @id @default(autoincrement())
-  Contact              Contact       @relation(fields: [memberId], references: [memberId])
-  memberId             String        @db.VarChar(30)
+  // Contact              Contact       @relation(fields: [memberId], references: [memberId])
+  Member               Member        @relation(fields: [memberId], references: [id])
+  memberId             Int
   register_date        DateTime      @db.Date //tanggal registrasi
   loanAmount           Decimal       @default(0) @db.Decimal(16, 2) //Total Pinjaman
   loanTerm             Int           @default(12) @db.SmallInt //Jangka waktu pinjaman
@@ -165,25 +192,25 @@ model LoanPayment {
 }
 
 model MemberType {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(30)
-  Contact Contact[]
+  id     Int      @id @default(autoincrement())
+  name   String   @db.VarChar(30)
+  Member Member[]
 
   @@map("member_types")
 }
 
 model Unit {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(30)
-  Contact Contact[]
+  id     Int      @id @default(autoincrement())
+  name   String   @db.VarChar(30)
+  Member Member[]
 
   @@map("units")
 }
 
 model SubUnit {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(30)
-  Contact Contact[]
+  id     Int      @id @default(autoincrement())
+  name   String   @db.VarChar(30)
+  Member Member[]
 
   @@map("sub_units")
 }

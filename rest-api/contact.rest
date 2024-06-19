@@ -1,8 +1,13 @@
 ### create
-POST http://localhost:7000/api/contacts/
+POST http://192.168.10.2:7000/api/contacts/
 Content-Type: application/json
 
 {
+	"memberId": "123456",
+	"NIP": "34244545634534",
+	"memberTypeId": 1,
+	"unitId": 1,
+	"subUnitId": 1,
 	"firstName": "mastenk",
 	"lastName": "ketut",
 	"email" : "mastenk@gmail.com",
@@ -10,7 +15,7 @@ Content-Type: application/json
 }
 
 ### get
-GET  http://localhost:7000/api/contacts/3
+GET  http://192.168.10.2:7000/api/contacts/1
 Content-Type: application/json
 
 ### update

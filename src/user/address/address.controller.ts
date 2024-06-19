@@ -21,7 +21,7 @@ import {
 } from 'src/schema/address.schema';
 import { AddressService } from './address.service';
 
-@Controller('contacts/:contactId/addresses')
+@Controller('members/:memberId/addresses')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
@@ -29,10 +29,10 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async create(
     @Auth() user: User,
-    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
     @Body() request: CreateAddressRequest,
   ): Promise<ApiResponse<AddressResponse>> {
-    request.contactId = contactId;
+    request.memberId = memberId;
     const result = await this.addressService.create(user, request);
 
     return {
@@ -45,11 +45,11 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async get(
     @Auth() user: User,
-    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
     @Param('addressId', ParseIntPipe) addressId: number,
   ): Promise<ApiResponse<AddressResponse>> {
     const request: GetAddressRequest = {
-      contactId,
+      memberId,
       addressId,
     };
     const result = await this.addressService.get(user, request);
@@ -64,12 +64,12 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async update(
     @Auth() user: User,
-    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
     @Param('addressId', ParseIntPipe) addressId: number,
     @Body() request: UpdateAddressRequest,
   ): Promise<ApiResponse<AddressResponse>> {
     request.id = addressId;
-    request.contactId = contactId;
+    request.memberId = memberId;
 
     const result = await this.addressService.update(user, request);
 
@@ -83,11 +83,11 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async remove(
     @Auth() user: User,
-    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
     @Param('addressId', ParseIntPipe) addressId: number,
   ): Promise<ApiResponse<string>> {
     const request: RemoveAddressRequest = {
-      contactId,
+      memberId,
       addressId,
     };
     await this.addressService.remove(user, request);

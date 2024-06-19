@@ -1,33 +1,62 @@
-import { ChartOfAccount, PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
+import { hash } from 'bcrypt';
 // import { CoA } from '../rest-api/seed-data/chart-of-account';
 
 // initialize Prisma Client
 const prisma = new PrismaClient();
 
-const generateChartOfAccount = async () => {
-  const CoA: ChartOfAccount[] = [];
-  if (CoA.length === 0) return;
-  const accounts: Omit<ChartOfAccount, 'code'>[] = CoA.map(
-    (acc) =>
-      ({
-        ...acc,
-        isBalanceSheetAccount:
-          parseInt(acc.id.substring(0, 1)) <= 3 ? true : false,
-        accountNo: acc.id,
-      }) as ChartOfAccount,
+const generateUser = async () => {
+  const usersFromDb = await prisma.user.findMany();
+  const contacts = await prisma.contact.findMany();
+  if (usersFromDb) {
+    usersFromDb.map((item) => ({ ...item, password: item.name }));
+  }
+
+  const usersData: User[] = usersFromDb
+    ? usersFromDb
+    : [
+        {
+          username: 'admin',
+          email: 'admin@gmail.com',
+          password: 'admin',
+          name: 'admin',
+        },
+        {
+          username: 'super-admin',
+          email: 'root@gmail.com',
+          password: 'super',
+          name: 'super admin',
+        },
+      ];
+
+  const dataResult = await Promise.all(
+    usersData.map(async (item) => ({
+      ...item,
+      password: await hash(item.password, 10),
+    })),
   );
-  await prisma.chartOfAccount.deleteMany();
-  await prisma.chartOfAccount.createMany({
-    data: accounts,
-    skipDuplicates: true,
+
+  console.log('start seeding users..');
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.deleteMany();
+    await tx.user.createMany({ data: dataResult });
+    await tx.contact.createMany({
+      data: contacts.map((item) => ({ ...item, id: undefined })),
+    });
+
+    // for (const user of dataResult) {
+    //   await prisma.user.create({ data: user });
+    // }
   });
-  console.log('seeding chart of accounts done!');
+
+  console.log('seeding users done!');
 };
 
 async function main() {
   if (process.env.NODE_ENV !== 'development') return;
   // await removeAllRecords();
-  // await generateUser();
+  await generateUser();
   // await generateEmployee();
   // await generateCustomer();
   // await generateTypes();

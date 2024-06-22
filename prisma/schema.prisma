@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,9 +12,9 @@ model User {
   email    String    @unique @db.VarChar(60)
   password String    @db.VarChar(100)
   name     String    @db.VarChar(100)
-  // token    String?   @db.VarChar(100)
-  sessions Session[] @relation(name: "OnlineUsers")
   Member   Member?
+  sessions Session[] @relation("OnlineUsers")
+  Anggota  Anggota[]
 
   @@map("users")
 }
@@ -31,33 +25,11 @@ model Session {
   userAgent String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(name: "OnlineUsers", fields: [username], references: [username], onDelete: Cascade)
   username  String   @db.VarChar(50)
+  user      User     @relation("OnlineUsers", fields: [username], references: [username], onDelete: Cascade)
 
   @@map("sessions")
 }
-
-// model Contact {
-//   id           Int     @id @default(autoincrement())
-//   username     String  @unique @db.VarChar(50)
-//   memberId     String  @unique @db.VarChar(30)
-//   firstName    String  @db.VarChar(50)
-//   lastName     String? @db.VarChar(50)
-//   email        String? @db.VarChar(50)
-//   phone        String? @db.VarChar(20)
-//   fullAddress  String? @db.VarChar(200)
-//   NIP          String? @db.VarChar(30)
-//   // memberg       String          @db.VarChar(30)
-//   User         User    @relation(fields: [username], references: [username], onDelete: Cascade)
-//   memberTypeId Int?
-//   unitId       Int?
-//   subUnitId    Int?
-//   // Addresses     Address[]
-//   // SavingAccount SavingAccount[]
-//   // LoanAccount   LoanAccount[]
-
-//   @@map("contacts")
-// }
 
 model Member {
   id            Int             @id @default(autoincrement())
@@ -69,17 +41,17 @@ model Member {
   phone         String?         @db.VarChar(20)
   fullAddress   String?         @db.VarChar(200)
   NIP           String?         @db.VarChar(30)
-  voucherAmount Decimal         @default(0) @db.Decimal(16, 2)
-  User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
-  Addresses     Address[]
-  MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
   memberTypeId  Int?
-  Unit          Unit?           @relation(fields: [unitId], references: [id])
   unitId        Int?
-  SubUnit       SubUnit?        @relation(fields: [subUnitId], references: [id])
   subUnitId     Int?
-  SavingAccount SavingAccount[]
+  voucherAmount Decimal         @default(0) @db.Decimal(16, 2)
+  Addresses     Address[]
   LoanAccount   LoanAccount[]
+  MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
+  SubUnit       SubUnit?        @relation(fields: [subUnitId], references: [id])
+  Unit          Unit?           @relation(fields: [unitId], references: [id])
+  User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
+  SavingAccount SavingAccount[]
 
   @@map("members")
 }
@@ -91,102 +63,92 @@ model Address {
   province   String? @db.VarChar(50)
   country    String  @db.VarChar(50)
   postalCode String  @db.VarChar(10)
-  // contact    Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  // contactId  Int
-  Member     Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId   Int
+  Member     Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@map("addresses")
 }
 
-// Buku Tabungan
 model SavingAccount {
   id                       Int          @id @default(autoincrement())
-  // Contact                  Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  // contactId                Int
-  register_date            DateTime     @db.Date //tanggal registrasi
-  principalDeposit         Decimal      @default(0) @db.Decimal(16, 2) //Setoran Pokok
-  mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2) //setoran wajib
-  voluntaryDeposit         Decimal      @default(0) @db.Decimal(16, 2) //setoran sukarela
-  otherDeposit             Decimal      @default(0) @db.Decimal(16, 2) //setoran lainnya
-  savingAmount             Decimal      @default(0) @db.Decimal(16, 2) //saldo tabungan
-  voluntaryWithdrawalLimit Decimal      @default(0) @db.Decimal(16, 2) //batas penarikan setoran sukarela
-  otherWithdrawalLimit     Decimal      @default(0) @db.Decimal(16, 2) //batas penarikan setoran lainnya
-  withdrawalLimit          Decimal      @default(0) @db.Decimal(16, 2) //total batas penarikan
+  register_date            DateTime     @db.Date
+  principalDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+  mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+  voluntaryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+  otherDeposit             Decimal      @default(0) @db.Decimal(16, 2)
+  savingAmount             Decimal      @default(0) @db.Decimal(16, 2)
+  voluntaryWithdrawalLimit Decimal      @default(0) @db.Decimal(16, 2)
+  otherWithdrawalLimit     Decimal      @default(0) @db.Decimal(16, 2)
+  withdrawalLimit          Decimal      @default(0) @db.Decimal(16, 2)
   createdAt                DateTime     @default(now())
   updatedAt                DateTime     @updatedAt
-  Withdrawal               Withdrawal[]
+  memberId                 Int
   Deposit                  Deposit[]
   Member                   Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId                 Int
+  Withdrawal               Withdrawal[]
 
   @@map("saving_accounts")
 }
 
-// Setoran
 model Deposit {
   id               Int           @id @default(autoincrement())
-  SavingAccount    SavingAccount @relation(fields: [savingAccountId], references: [id])
   savingAccountId  Int
-  deposit_date     DateTime      @db.Date //tanggal penarikan
-  principalDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran pokok
-  mandatoryDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran wajib
-  voluntaryDeposit Decimal       @default(0) @db.Decimal(16, 2) //setoran sukarela
-  otherDeposit     Decimal       @default(0) @db.Decimal(16, 2) //setoran lainnya
-  depositAmount    Decimal       @default(0) @db.Decimal(16, 2) //total setoran
+  deposit_date     DateTime      @db.Date
+  principalDeposit Decimal       @default(0) @db.Decimal(16, 2)
+  mandatoryDeposit Decimal       @default(0) @db.Decimal(16, 2)
+  voluntaryDeposit Decimal       @default(0) @db.Decimal(16, 2)
+  otherDeposit     Decimal       @default(0) @db.Decimal(16, 2)
+  depositAmount    Decimal       @default(0) @db.Decimal(16, 2)
+  SavingAccount    SavingAccount @relation(fields: [savingAccountId], references: [id])
 
   @@map("deposits")
 }
 
-// Penarikan
 model Withdrawal {
   id                  Int           @id @default(autoincrement())
-  SavingAccount       SavingAccount @relation(fields: [savingAccountId], references: [id])
   savingAccountId     Int
-  withdrawal_date     DateTime      @db.Date //tanggal penarikan
-  voluntaryWithdrawal Decimal       @default(0) @db.Decimal(16, 2) //tarikan simpanan sukarela
-  otherWithdrawal     Decimal       @default(0) @db.Decimal(16, 2) //tarikan simpanan lainnya
-  withdrawalAmount    Decimal       @default(0) @db.Decimal(16, 2) //total tarikan
+  withdrawal_date     DateTime      @db.Date
+  voluntaryWithdrawal Decimal       @default(0) @db.Decimal(16, 2)
+  otherWithdrawal     Decimal       @default(0) @db.Decimal(16, 2)
+  withdrawalAmount    Decimal       @default(0) @db.Decimal(16, 2)
+  SavingAccount       SavingAccount @relation(fields: [savingAccountId], references: [id])
 
   @@map("withdrawals")
 }
 
-// Rekening Pinjaman
 model LoanAccount {
   id                   Int           @id @default(autoincrement())
-  // Contact              Contact       @relation(fields: [memberId], references: [memberId])
-  Member               Member        @relation(fields: [memberId], references: [id])
   memberId             Int
-  register_date        DateTime      @db.Date //tanggal registrasi
-  loanAmount           Decimal       @default(0) @db.Decimal(16, 2) //Total Pinjaman
-  loanTerm             Int           @default(12) @db.SmallInt //Jangka waktu pinjaman
-  interestPercent      Int           @default(0) @db.TinyInt //presentase bunga
-  installmentValue     Decimal       @default(0) @db.Decimal(16, 2) //nilai angsuran
-  installmentPrincipal Decimal       @default(0) @db.Decimal(16, 2) //Pokok Angsuran
-  installmentInterest  Decimal       @default(0) @db.Decimal(16, 2) //bunga Angsuran
-  principalPaid        Decimal       @default(0) @db.Decimal(16, 2) //pokok terbayar
-  interestPaid         Decimal       @default(0) @db.Decimal(16, 2) //bunga terbayar
-  paidValue            Decimal       @default(0) @db.Decimal(16, 2) //jumlah terbayar
-  principalBalance     Decimal       @default(0) @db.Decimal(16, 2) //saldo pokok angsuran
-  interestBalance      Decimal       @default(0) @db.Decimal(16, 2) //saldo bunga angsuran
-  loanBalance          Decimal       @default(0) @db.Decimal(16, 2) //saldo pinjaman
-  LoanPayment          LoanPayment[]
+  register_date        DateTime      @db.Date
+  loanAmount           Decimal       @default(0) @db.Decimal(16, 2)
+  loanTerm             Int           @default(12) @db.SmallInt
+  interestPercent      Int           @default(0) @db.TinyInt
+  installmentValue     Decimal       @default(0) @db.Decimal(16, 2)
+  installmentPrincipal Decimal       @default(0) @db.Decimal(16, 2)
+  installmentInterest  Decimal       @default(0) @db.Decimal(16, 2)
+  principalPaid        Decimal       @default(0) @db.Decimal(16, 2)
+  interestPaid         Decimal       @default(0) @db.Decimal(16, 2)
+  paidValue            Decimal       @default(0) @db.Decimal(16, 2)
+  principalBalance     Decimal       @default(0) @db.Decimal(16, 2)
+  interestBalance      Decimal       @default(0) @db.Decimal(16, 2)
+  loanBalance          Decimal       @default(0) @db.Decimal(16, 2)
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+  Member               Member        @relation(fields: [memberId], references: [id])
+  LoanPayment          LoanPayment[]
 
   @@map("loan_accounts")
 }
 
-// Pembayaran Angsuran
 model LoanPayment {
   id             Int         @id @default(autoincrement())
-  LoanAccount    LoanAccount @relation(fields: [loanAccountId], references: [id])
   loanAccountId  Int
-  payment_date   DateTime    @db.Date //tanggal pembayaran angsuran
-  installmentTo  Int         @default(0) @db.SmallInt //angsuran ke
-  principalValue Decimal     @default(0) @db.Decimal(16, 2) //Pokok Angsuran
-  interestValue  Decimal     @default(0) @db.Decimal(16, 2) //bunga Angsuran
-  amount         Decimal     @default(0) @db.Decimal(16, 2) //total Angsuran
+  payment_date   DateTime    @db.Date
+  installmentTo  Int         @default(0) @db.SmallInt
+  principalValue Decimal     @default(0) @db.Decimal(16, 2)
+  interestValue  Decimal     @default(0) @db.Decimal(16, 2)
+  amount         Decimal     @default(0) @db.Decimal(16, 2)
+  LoanAccount    LoanAccount @relation(fields: [loanAccountId], references: [id])
 
   @@map("loan_payments")
 }
@@ -215,41 +177,91 @@ model SubUnit {
   @@map("sub_units")
 }
 
-// enum Role {
-//   USER
-//   ADMIN
-//   SUPERVISOR
-//   MANAGER
-//   ROOT
-// }
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Anggota {
+  // id           Int     @id @default(autoincrement())
+  noAnggota    String     @id() @db.VarChar(50)
+  User         User       @relation(fields: [noAnggota], references: [username])
+  nip          String?    @db.VarChar(15)
+  namaunit     String?    @db.VarChar(50)
+  namasub      String?    @db.VarChar(50)
+  keterangan   String?    @db.VarChar(50)
+  namaAnggota  String?    @db.VarChar(50)
+  alamat       String?    @db.VarChar(100)
+  telp         String?    @db.VarChar(15)
+  kelamin      String?    @db.VarChar(1)
+  kodebank     String?    @db.VarChar(5)
+  cabang       String?    @db.VarChar(100)
+  norek        String?    @db.VarChar(50)
+  namarek      String?    @db.VarChar(100)
+  saldoVoucher Decimal    @db.Decimal(16, 2)
+  Pinjaman     Pinjaman[]
+  Simpanan     Simpanan[]
 
-// enum AccountLevel {
-//   ROOT
-//   GROUP
-//   SUB_GROUP
-//   CLUSTER
-//   SUB_CLUSTER
-//   UNIT_CLUSTER
-//   DETAIL
-// }
+  @@map("anggota")
+}
 
-// enum GroupAccount {
-//   GROUP
-//   DETAIL
-// }
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Pinjaman {
+  refCode         String            @id @unique @db.UniqueIdentifier
+  noAnggota       String            @db.VarChar(50)
+  Anggota         Anggota           @relation(fields: [noAnggota], references: [noAnggota])
+  tglPinjam       DateTime          @db.Date
+  bulan           Int?              @db.SmallInt
+  tahun           Int?              @db.SmallInt
+  nilaiPinjaman   Decimal           @db.Decimal(16, 2)
+  jangkaWaktu     Int?              @db.SmallInt
+  jenisBunga      String            @db.VarChar(7)
+  persenBunga     Decimal           @db.Decimal(6, 2)
+  biayaAdmin      Decimal           @db.Decimal(16, 2)
+  tanggalLunas    DateTime?         @db.Date
+  lunas           String?           @db.VarChar(1)
+  RincianPinjaman RincianPinjaman[]
 
-// enum VerificationStatus {
-//   Open
-//   Submitted
-//   Released
-//   Approved
-//   Rejected
-//   Posted
-//   Closed
-// }
+  @@map("pinjaman")
+}
 
-// enum VerificationLevel {
-//   ADMIN
-//   SUPERVISOR
-//   MANAGER
-// }
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model RincianPinjaman {
+  refCode    String    @db.UniqueIdentifier
+  Pinjaman   Pinjaman  @relation(fields: [refCode], references: [refCode])
+  angKe      Int       @db.SmallInt
+  bulan      Int?      @db.SmallInt
+  tahun      Int?      @db.SmallInt
+  rpPinjaman Decimal   @db.Decimal(16, 2)
+  rpBunga    Decimal   @db.Decimal(16, 2)
+  rpBayar    Decimal   @db.Decimal(16, 2)
+  blnLunas   Int?      @db.SmallInt
+  thnLunas   Int?      @db.SmallInt
+  tglLunas   DateTime? @db.Date
+  lunas      String?   @db.VarChar(1)
+  keterangan String?   @db.VarChar(50)
+
+  @@unique([refCode, angKe])
+  @@map("rincian_pinjaman")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Simpanan {
+  noAnggota    String  @unique @db.VarChar(50)
+  Anggota      Anggota @relation(fields: [noAnggota], references: [noAnggota])
+  namaAnggota  String? @db.VarChar(50)
+  totalPokok   Decimal @db.Decimal(16, 2)
+  totalWajib   Decimal @db.Decimal(16, 2)
+  sisaSukarela Decimal @db.Decimal(16, 2)
+  totalSaldo   Decimal @db.Decimal(16, 2)
+
+  @@map("simpanan")
+}
+
+model Barang {
+  kodeBarang String  @id @unique @db.VarChar(5)
+  barcode    String? @db.VarChar(15)
+  namaJenis  String? @db.VarChar(50)
+  namaBarang String? @db.VarChar(100)
+  satuan     String? @db.VarChar(10)
+  stok       Decimal @db.Decimal(16, 2)
+  hargaJual  Decimal @db.Decimal(16, 2)
+
+  @@map("barang")
+}

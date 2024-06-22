@@ -5,9 +5,32 @@ import { hash } from 'bcrypt';
 // initialize Prisma Client
 const prisma = new PrismaClient();
 
+const updateUserPassword = async () => {
+  const usersFromDb = await prisma.user.findMany();
+  if (usersFromDb) {
+    usersFromDb.map((item) => ({ ...item, password: item.name }));
+  }
+
+  const dataResult = await Promise.all(
+    usersFromDb.map(async (item) => ({
+      ...item,
+      password: await hash(item.password, 10),
+    })),
+  );
+
+  await prisma.$transaction(async (tx) => {
+    for (const user of dataResult) {
+      await tx.user.update({
+        where: { username: user.username },
+        data: { password: user.password },
+      });
+    }
+  });
+};
+
 const generateUser = async () => {
   const usersFromDb = await prisma.user.findMany();
-  const contacts = await prisma.contact.findMany();
+  const contacts = await prisma.member.findMany();
   if (usersFromDb) {
     usersFromDb.map((item) => ({ ...item, password: item.name }));
   }
@@ -41,7 +64,7 @@ const generateUser = async () => {
   await prisma.$transaction(async (tx) => {
     await tx.user.deleteMany();
     await tx.user.createMany({ data: dataResult });
-    await tx.contact.createMany({
+    await tx.member.createMany({
       data: contacts.map((item) => ({ ...item, id: undefined })),
     });
 
@@ -56,7 +79,8 @@ const generateUser = async () => {
 async function main() {
   if (process.env.NODE_ENV !== 'development') return;
   // await removeAllRecords();
-  await generateUser();
+  // await generateUser();
+  await updateUserPassword();
   // await generateEmployee();
   // await generateCustomer();
   // await generateTypes();

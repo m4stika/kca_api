@@ -182,14 +182,14 @@ model Anggota {
   // id           Int     @id @default(autoincrement())
   noAnggota    String     @id() @db.VarChar(50)
   User         User       @relation(fields: [noAnggota], references: [username])
-  nip          String?    @db.VarChar(15)
-  namaunit     String?    @db.VarChar(50)
-  namasub      String?    @db.VarChar(50)
+  nip          String     @db.VarChar(15)
+  namaunit     String     @db.VarChar(50)
+  namasub      String     @db.VarChar(50)
   keterangan   String?    @db.VarChar(50)
-  namaAnggota  String?    @db.VarChar(50)
-  alamat       String?    @db.VarChar(100)
+  namaAnggota  String     @db.VarChar(50)
+  alamat       String     @db.VarChar(100)
   telp         String?    @db.VarChar(15)
-  kelamin      String?    @db.VarChar(1)
+  kelamin      String     @db.VarChar(1)
   kodebank     String?    @db.VarChar(5)
   cabang       String?    @db.VarChar(100)
   norek        String?    @db.VarChar(50)
@@ -207,15 +207,16 @@ model Pinjaman {
   noAnggota       String            @db.VarChar(50)
   Anggota         Anggota           @relation(fields: [noAnggota], references: [noAnggota])
   tglPinjam       DateTime          @db.Date
-  bulan           Int?              @db.SmallInt
-  tahun           Int?              @db.SmallInt
+  isPinjamanUang  Boolean           @default(true)
+  bulan           Int               @db.SmallInt
+  tahun           Int               @db.SmallInt
   nilaiPinjaman   Decimal           @db.Decimal(16, 2)
-  jangkaWaktu     Int?              @db.SmallInt
+  jangkaWaktu     Int               @db.SmallInt
   jenisBunga      String            @db.VarChar(7)
   persenBunga     Decimal           @db.Decimal(6, 2)
   biayaAdmin      Decimal           @db.Decimal(16, 2)
   tanggalLunas    DateTime?         @db.Date
-  lunas           String?           @db.VarChar(1)
+  lunas           String            @db.VarChar(1)
   RincianPinjaman RincianPinjaman[]
 
   @@map("pinjaman")
@@ -226,15 +227,15 @@ model RincianPinjaman {
   refCode    String    @db.UniqueIdentifier
   Pinjaman   Pinjaman  @relation(fields: [refCode], references: [refCode])
   angKe      Int       @db.SmallInt
-  bulan      Int?      @db.SmallInt
-  tahun      Int?      @db.SmallInt
+  bulan      Int       @db.SmallInt
+  tahun      Int       @db.SmallInt
   rpPinjaman Decimal   @db.Decimal(16, 2)
   rpBunga    Decimal   @db.Decimal(16, 2)
   rpBayar    Decimal   @db.Decimal(16, 2)
   blnLunas   Int?      @db.SmallInt
   thnLunas   Int?      @db.SmallInt
   tglLunas   DateTime? @db.Date
-  lunas      String?   @db.VarChar(1)
+  lunas      String    @db.VarChar(1)
   keterangan String?   @db.VarChar(50)
 
   @@unique([refCode, angKe])
@@ -257,9 +258,9 @@ model Simpanan {
 model Barang {
   kodeBarang String  @id @unique @db.VarChar(5)
   barcode    String? @db.VarChar(15)
-  namaJenis  String? @db.VarChar(50)
-  namaBarang String? @db.VarChar(100)
-  satuan     String? @db.VarChar(10)
+  namaJenis  String  @db.VarChar(50)
+  namaBarang String  @db.VarChar(100)
+  satuan     String  @db.VarChar(10)
   stok       Decimal @db.Decimal(16, 2)
   hargaJual  Decimal @db.Decimal(16, 2)
 

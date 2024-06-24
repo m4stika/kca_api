@@ -25,7 +25,7 @@ import { Logger } from 'winston';
 import { ProductService } from './product.service';
 
 @Controller('products')
-export class AnggotaController {
+export class ProductController {
   constructor(
     private productService: ProductService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
@@ -45,6 +45,27 @@ export class AnggotaController {
       status: 'success',
       data: result,
     };
+  }
+
+  @Get('search')
+  @HttpCode(HttpStatus.OK)
+  async search(
+    @Auth() user: User,
+    @Query('namaBarang') namaBarang?: string,
+    @Query('kodeBarang') kodeBarang?: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('size', new ParseIntPipe({ optional: true })) size?: number,
+  ): Promise<ApiResponse<ProductResponse[]>> {
+    this.logger.debug(
+      `Controller.product.search ${JSON.stringify({ username: user.username, namaBarang, kodeBarang, page, size })}`,
+    );
+    const member: SearchProductRequest = {
+      kodeBarang,
+      namaBarang,
+      page: page || 1,
+      size: size || 10,
+    };
+    return await this.productService.search(user, member);
   }
 
   @Get(':productId')
@@ -95,26 +116,5 @@ export class AnggotaController {
       status: 'success',
       data: 'Contact has been deleted',
     };
-  }
-
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async search(
-    @Auth() user: User,
-    @Query('namaBarang') namaBarang?: string,
-    @Query('kodeBarang') kodeBarang?: string,
-    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
-    @Query('size', new ParseIntPipe({ optional: true })) size?: number,
-  ): Promise<ApiResponse<ProductResponse[]>> {
-    this.logger.debug(
-      `Controller.product.search ${JSON.stringify({ username: user.username, namaBarang, kodeBarang, page, size })}`,
-    );
-    const member: SearchProductRequest = {
-      kodeBarang,
-      namaBarang,
-      page: page || 1,
-      size: size || 10,
-    };
-    return await this.productService.search(user, member);
   }
 }

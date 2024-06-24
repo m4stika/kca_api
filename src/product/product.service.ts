@@ -32,7 +32,7 @@ export class ProductService {
     };
   }
 
-  async checkProductrMustExist(
+  async checkProductMustExist(
     username: string,
     productId?: string,
   ): Promise<ProductResponse> {
@@ -71,7 +71,7 @@ export class ProductService {
   }
 
   async get(user: User, productId: string): Promise<ProductResponse> {
-    const product = await this.checkProductrMustExist(user.username, productId);
+    const product = await this.checkProductMustExist(user.username, productId);
 
     return product; //this.toProductResponse(contact);
   }
@@ -85,7 +85,7 @@ export class ProductService {
     //   request,
     // );
 
-    const productExists = await this.checkProductrMustExist(
+    const productExists = await this.checkProductMustExist(
       user.username,
       request.kodeBarang,
     );
@@ -103,7 +103,7 @@ export class ProductService {
   }
 
   async remove(user: User, productId: string): Promise<ProductResponse> {
-    const productExists = await this.checkProductrMustExist(
+    const productExists = await this.checkProductMustExist(
       user.username,
       productId,
     );
@@ -145,8 +145,8 @@ export class ProductService {
       skip,
     });
 
-    const total = await this.prisma.anggota.count({
-      where: { noAnggota: user.username, AND: filter },
+    const total = await this.prisma.barang.count({
+      where: { AND: filter },
     });
 
     return {

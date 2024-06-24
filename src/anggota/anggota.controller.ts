@@ -119,7 +119,9 @@ export class AnggotaController {
     @Query('telp') telp?: string,
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('size', new ParseIntPipe({ optional: true })) size?: number,
-  ): Promise<ApiResponse<AnggotaResponse[]>> {
+  ): Promise<
+    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>[]>
+  > {
     this.logger.debug(
       `Controller.member.search ${JSON.stringify({ username: user.username, namaAnggota, noAnggota, telp, page, size })}`,
     );

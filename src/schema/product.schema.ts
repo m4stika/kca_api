@@ -5,9 +5,9 @@ export class ProductValidation {
   private static readonly baseSchema = z.object({
     kodeBarang: z.string().min(1).max(5),
     barcode: z.string().nullish(),
-    namaJenis: z.string().nullish(),
-    namaBarang: z.string().nullish(),
-    satuan: z.string().nullish(),
+    namaJenis: z.string(),
+    namaBarang: z.string(),
+    satuan: z.string(),
     stok: ZodDecimalPositive(),
     hargaJual: ZodDecimalPositive(),
   });

@@ -20,7 +20,11 @@ export class AnggotaService {
     private validationService: ValidationService,
   ) {}
 
-  toAnggotaResponse(anggota: Anggota): Omit<AnggotaResponse, 'User'> {
+  toAnggotaResponse(
+    anggota: Anggota,
+  ): Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman'> {
+    // get saldo simpanan
+
     return {
       noAnggota: anggota.noAnggota,
       nip: anggota.nip,
@@ -39,10 +43,36 @@ export class AnggotaService {
     };
   }
 
+  async getSaldo(noAnggota: string) {
+    const saldoPinjaman = await this.prisma.pinjaman.aggregate({
+      where: { noAnggota: noAnggota.toString(), lunas: 'N' },
+      _sum: { nilaiPinjaman: true },
+    });
+
+    const saldoSimpanan = await this.prisma.simpanan.findUnique({
+      where: { noAnggota: noAnggota.toString() },
+      select: { totalSaldo: true },
+    });
+
+    const result = {
+      saldoSimpanan: new Prisma.Decimal(0),
+      saldoPinjaman: new Prisma.Decimal(0),
+    };
+    if (saldoSimpanan)
+      result.saldoSimpanan = result.saldoSimpanan.add(saldoSimpanan.totalSaldo);
+
+    if (saldoPinjaman._sum.nilaiPinjaman)
+      result.saldoPinjaman = result.saldoPinjaman.add(
+        saldoPinjaman._sum.nilaiPinjaman,
+      );
+
+    return result;
+  }
+
   async checkMemberMustExist(
     username: string,
     noAnggota?: string,
-  ): Promise<AnggotaResponse> {
+  ): Promise<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>> {
     const anggota = await this.prisma.anggota.findFirst({
       where: { noAnggota: username },
       include: { User: true },
@@ -75,19 +105,27 @@ export class AnggotaService {
     });
 
     // const AnggotaResponse = this.toAnggotaResponse(anggota);
-    return anggota;
+    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+      anggota.noAnggota,
+    );
+    return { ...anggota, saldoPinjaman, saldoSimpanan };
   }
 
   async get(user: User, contactId: string): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username, contactId);
-
-    return anggota; //this.toAnggotaResponse(contact);
+    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+      anggota.noAnggota,
+    );
+    return { ...anggota, saldoPinjaman, saldoSimpanan };
   }
 
   async find(user: User): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username);
 
-    return anggota; //this.toAnggotaResponse(contact);
+    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+      anggota.noAnggota,
+    );
+    return { ...anggota, saldoPinjaman, saldoSimpanan };
   }
 
   async update(
@@ -113,13 +151,18 @@ export class AnggotaService {
       include: { User: true },
     });
 
-    return member; // this.toAnggotaResponse(contact);
+    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+      member.noAnggota,
+    );
+    return { ...member, saldoPinjaman, saldoSimpanan };
   }
 
   async remove(
     user: User,
     contactId: string,
-  ): Promise<Omit<AnggotaResponse, 'User'>> {
+  ): Promise<
+    Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman'>
+  > {
     const memberExists = await this.checkMemberMustExist(
       user.username,
       contactId,
@@ -135,7 +178,9 @@ export class AnggotaService {
   async search(
     user: User,
     request: SearchAnggotaRequest,
-  ): Promise<ApiResponse<AnggotaResponse[]>> {
+  ): Promise<
+    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>[]>
+  > {
     const searchRequest: SearchAnggotaRequest = this.validationService.validate(
       AnggotaValidation.SEARCH,
       request,

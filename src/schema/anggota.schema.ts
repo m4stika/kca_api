@@ -5,14 +5,14 @@ import { UserValidation } from './user.schema';
 export class AnggotaValidation {
   private static readonly baseSchema = z.object({
     noAnggota: z.string().min(1).max(30),
-    nip: z.string().nullish(),
-    namaunit: z.string().nullish(),
-    namasub: z.string().nullish(),
+    nip: z.string(),
+    namaunit: z.string(),
+    namasub: z.string(),
     keterangan: z.string().nullish(),
-    namaAnggota: z.string().nullish(),
-    alamat: z.string().nullish(),
+    namaAnggota: z.string(),
+    alamat: z.string(),
     telp: z.string().nullish(),
-    kelamin: z.string().nullish(),
+    kelamin: z.string(),
     kodebank: z.string().nullish(),
     cabang: z.string().nullish(),
     norek: z.string().nullish(),
@@ -42,6 +42,8 @@ export class AnggotaValidation {
 
 const AnggotaResponse = AnggotaValidation.UPDATE.extend({
   saldoVoucher: ZodDecimalPositive(),
+  saldoSimpanan: ZodDecimalPositive().default(0),
+  saldoPinjaman: ZodDecimalPositive().default(0),
   // username: z.string().min(1).max(50),
   User: UserValidation.REGISTER,
 });

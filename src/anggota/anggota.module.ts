@@ -4,6 +4,6 @@ import { AnggotaService } from './anggota.service';
 
 @Module({
   controllers: [AnggotaController],
-  providers: [AnggotaService]
+  providers: [AnggotaService],
 })
 export class AnggotaModule {}

@@ -197,6 +197,7 @@ model Anggota {
   saldoVoucher Decimal    @db.Decimal(16, 2)
   Pinjaman     Pinjaman[]
   Simpanan     Simpanan[]
+  Order        Order[]
 
   @@map("anggota")
 }
@@ -256,13 +257,45 @@ model Simpanan {
 }
 
 model Barang {
-  kodeBarang String  @id @unique @db.VarChar(5)
-  barcode    String? @db.VarChar(15)
-  namaJenis  String  @db.VarChar(50)
-  namaBarang String  @db.VarChar(100)
-  satuan     String  @db.VarChar(10)
-  stok       Decimal @db.Decimal(16, 2)
-  hargaJual  Decimal @db.Decimal(16, 2)
+  kodeBarang  String        @id @unique @db.VarChar(5)
+  barcode     String?       @db.VarChar(15)
+  namaJenis   String        @db.VarChar(50)
+  namaBarang  String        @db.VarChar(100)
+  satuan      String        @db.VarChar(10)
+  stok        Decimal       @db.Decimal(16, 2)
+  hargaJual   Decimal       @db.Decimal(16, 2)
+  OrderDetail OrderDetail[]
 
   @@map("barang")
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  invoiceNo       String?       @db.VarChar(20)
+  transactionType String        @default("Belanja") @db.VarChar(30)
+  noAnggota       String        @db.VarChar(50)
+  Anggota         Anggota?      @relation(fields: [noAnggota], references: [noAnggota])
+  transactionDate DateTime      @db.Date
+  orderStatus     String        @db.VarChar(20)
+  shippingMethod  String?       @db.VarChar(20)
+  paymentMethod   String?       @db.VarChar(20)
+  amount          Decimal       @default(0) @db.Decimal(16, 2)
+  remark          String        @db.VarChar(100)
+  notes           String        @db.VarChar(200)
+  OrderDetail     OrderDetail[]
+
+  @@map("orders")
+}
+
+model OrderDetail {
+  parentId   Int
+  index      Int
+  Order      Order   @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  kodeBarang String  @db.VarChar(5)
+  Barang     Barang  @relation(fields: [kodeBarang], references: [kodeBarang])
+  price      Decimal @default(0) @db.Decimal(16, 2)
+  qty        Int     @default(1)
+
+  @@unique([parentId, index])
+  @@map("order_details")
 }

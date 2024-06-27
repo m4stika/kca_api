@@ -22,6 +22,8 @@ export class AuthMiddleware implements NestMiddleware {
 
     const { accessToken, refreshToken } = req.cookies;
 
+    // this.logger.debug(`AuthMiddleware.accessToken: ${accessToken}`);
+
     if (!accessToken) {
       this.logger.debug(`AuthMiddleware.accessToken.notFound`);
       req.user = null;

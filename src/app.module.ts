@@ -6,9 +6,10 @@ import { ProductModule } from './product/product.module';
 import { AnggotaModule } from './anggota/anggota.module';
 import { SimpananModule } from './simpanan/simpanan.module';
 import { PinjamanModule } from './pinjaman/pinjaman.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
-  imports: [CommonModule, UserModule, SavingAccountModule, ProductModule, AnggotaModule, SimpananModule, PinjamanModule],
+  imports: [CommonModule, UserModule, SavingAccountModule, ProductModule, AnggotaModule, SimpananModule, PinjamanModule, OrderModule],
   controllers: [],
   providers: [],
   exports: [],

@@ -44,27 +44,59 @@ export class AnggotaService {
   }
 
   async getSaldo(noAnggota: string) {
-    const saldoPinjaman = await this.prisma.pinjaman.aggregate({
-      where: { noAnggota: noAnggota.toString(), lunas: 'N' },
-      _sum: { nilaiPinjaman: true },
-    });
-
     const saldoSimpanan = await this.prisma.simpanan.findUnique({
       where: { noAnggota: noAnggota.toString() },
       select: { totalSaldo: true },
     });
 
+    // const saldoPinjaman = await this.prisma.pinjaman.aggregate({
+    //   where: { noAnggota: noAnggota.toString(), lunas: 'N' },
+    //   _sum: { nilaiPinjaman: true },
+    // });
+
+    const dataPinjaman = await this.prisma.pinjaman.findMany({
+      where: { noAnggota: noAnggota.toString(), lunas: 'N' },
+      select: { refCode: true, nilaiPinjaman: true },
+    });
     const result = {
       saldoSimpanan: new Prisma.Decimal(0),
       saldoPinjaman: new Prisma.Decimal(0),
+      nilaiAngsuran: new Prisma.Decimal(0),
     };
+
+    if (dataPinjaman) {
+      await Promise.all(
+        dataPinjaman.map(async (pinjaman) => {
+          // const result = {
+          //   pinjaman: new Prisma.Decimal(0),
+          //   angsuran: new Prisma.Decimal(0),
+          // };
+
+          result.saldoPinjaman = result.saldoPinjaman.add(
+            pinjaman.nilaiPinjaman,
+          );
+
+          const rincianPinjaman = await this.prisma.rincianPinjaman.findFirst({
+            where: { refCode: pinjaman.refCode, lunas: 'N' },
+            select: { rpPinjaman: true, rpBunga: true },
+          });
+          if (rincianPinjaman)
+            result.nilaiAngsuran = result.nilaiAngsuran
+              .add(rincianPinjaman.rpPinjaman)
+              .add(rincianPinjaman.rpBunga);
+
+          // return result;
+        }),
+      );
+    }
+
     if (saldoSimpanan)
       result.saldoSimpanan = result.saldoSimpanan.add(saldoSimpanan.totalSaldo);
 
-    if (saldoPinjaman._sum.nilaiPinjaman)
-      result.saldoPinjaman = result.saldoPinjaman.add(
-        saldoPinjaman._sum.nilaiPinjaman,
-      );
+    // if (saldoPinjaman._sum.nilaiPinjaman)
+    //   result.saldoPinjaman = result.saldoPinjaman.add(
+    //     saldoPinjaman._sum.nilaiPinjaman,
+    //   );
 
     return result;
   }
@@ -72,7 +104,9 @@ export class AnggotaService {
   async checkMemberMustExist(
     username: string,
     noAnggota?: string,
-  ): Promise<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>> {
+  ): Promise<
+    Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman' | 'nilaiAngsuran'>
+  > {
     const anggota = await this.prisma.anggota.findFirst({
       where: { noAnggota: username },
       include: { User: true },
@@ -105,27 +139,27 @@ export class AnggotaService {
     });
 
     // const AnggotaResponse = this.toAnggotaResponse(anggota);
-    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
   }
 
   async get(user: User, contactId: string): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username, contactId);
-    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
   }
 
   async find(user: User): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username);
 
-    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
   }
 
   async update(
@@ -151,10 +185,10 @@ export class AnggotaService {
       include: { User: true },
     });
 
-    const { saldoPinjaman, saldoSimpanan } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
       member.noAnggota,
     );
-    return { ...member, saldoPinjaman, saldoSimpanan };
+    return { ...member, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
   }
 
   async remove(

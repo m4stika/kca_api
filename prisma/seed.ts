@@ -7,16 +7,21 @@ const prisma = new PrismaClient();
 
 const updateUserPassword = async () => {
   const usersFromDb = await prisma.user.findMany();
-  if (usersFromDb) {
-    usersFromDb.map((item) => ({ ...item, password: item.name }));
-  }
+  // if (usersFromDb) {
+  const userWithPass = usersFromDb.map((item) => ({
+    ...item,
+    password: item.username,
+  }));
+  // }
 
   const dataResult = await Promise.all(
-    usersFromDb.map(async (item) => ({
+    userWithPass.map(async (item) => ({
       ...item,
       password: await hash(item.password, 10),
     })),
   );
+
+  // console.log(userWithPass);
 
   await prisma.$transaction(async (tx) => {
     for (const user of dataResult) {

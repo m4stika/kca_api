@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  sql_server:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sql_server
+    restart: always
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "mast8118"
+      ACCEPT_EULA: "Y"
+    networks:
+      - kda_network
+    volumes:
+      - /var/opt/mssql/data:/var/opt/mssql/data
+      - /var/opt/mssql/log:/var/opt/mssql/log
+      - /var/opt/mssql/secrets:/var/opt/mssql/secrets
+      # - type: volume
+      #   source: sql_data
+      #   target: /var/opt/mssql
+      # - type: bind
+      #   source: /var/opt/mssql
+      #   target: /var/opt/mssql
+
+# volumes:
+  # sql_data:
+    # driver: local
+
+networks:
+  kda_network:
+    external: true
+    name: kda_network

@@ -1,31 +1,62 @@
-version: "3.8"
+# version: '3.8'
 
 services:
-  sql_server:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: sql_server
+  # sql_server:
+  #   image: mcr.microsoft.com/mssql/server:2019-latest
+  #   container_name: sql_server
+  #   restart: always
+  #   ports:
+  #     - '1433:1433'
+  #   environment:
+  #     SA_PASSWORD: 'mast8118'
+  #     ACCEPT_EULA: 'Y'
+  #   networks:
+  #     - kda_network
+  #   volumes:
+  #     - /var/opt/mssql/data:/var/opt/mssql/data
+  #     - /var/opt/mssql/log:/var/opt/mssql/log
+  #     - /var/opt/mssql/secrets:/var/opt/mssql/secrets
+
+  kca_api:
+    container_name: kca_api
     restart: always
+    image: mastika/kca_api:1.0.0
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - DOCKER_USER=$DOCKER_USER
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 5m
+        max-file: 5
     ports:
-      - "1433:1433"
-    environment:
-      SA_PASSWORD: "mast8118"
-      ACCEPT_EULA: "Y"
+      - 7000:7000
     networks:
       - kda_network
     volumes:
-      - /var/opt/mssql/data:/var/opt/mssql/data
-      - /var/opt/mssql/log:/var/opt/mssql/log
-      - /var/opt/mssql/secrets:/var/opt/mssql/secrets
-      # - type: volume
-      #   source: sql_data
-      #   target: /var/opt/mssql
-      # - type: bind
-      #   source: /var/opt/mssql
-      #   target: /var/opt/mssql
+      - /home/$USER/Documents/logs:/app/logs
+    # volumes:
+    #   - type: volume
+    #     source: assets_files
+    #     target: /app/public/assets/files
+    #   - type: bind
+    #     source: /home/$USER/Documents/kda_assets
+    #     target: /app/public/assets/files
+    # depends_on:
+    # kda_mysql:
+    # condition: service_healthy
+    stdin_open: true
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "3.00"
+    #       memory: 4g
 
 # volumes:
-  # sql_data:
-    # driver: local
+# sql_data:
+# driver: local
 
 networks:
   kda_network:

@@ -1,4 +1,12 @@
-
+BULK
+INSERT dbo.Account
+FROM 'G:\Import\Account3.txt'
+WITH
+(
+FIELDTERMINATOR = '|',
+ROWTERMINATOR = '\n'
+)
+GO
 
 
 select name from sysobjects where xtype = 'u'
@@ -43,7 +51,7 @@ CREATE TABLE [dbo].[rincianpinjaman] (
 	[ThnLunas] [smallint] NULL ,
 	[TglLunas] [datetime] NULL ,
 	[Lunas] [varchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL ,
-	[Keterangan] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL 
+	[Keterangan] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 
@@ -59,7 +67,7 @@ CREATE TABLE [dbo].[barang] (
 	[namabarang] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL ,
 	[satuan] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL ,
 	[stok] [numeric](18, 2) NULL ,
-	[hargajual] [money] NULL 
+	[hargajual] [money] NULL
 ) ON [PRIMARY]
 GO
 

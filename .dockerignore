@@ -1,0 +1,18 @@
+node_modules
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+
+# src
+
+disk
+doc
+unit-test
+
+# Keep environment variables out of version control
+
+.env
+
+_.md
+_.rest

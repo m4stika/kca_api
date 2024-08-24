@@ -67,6 +67,7 @@ ENV MULTER_DESTINATION_PATH='./upload-files'
 ENV MULTER_FILE_SIZE_LIMIT=2097152
 ENV MULTER_FILES_LIMIT=2
 
+# WORKDIR app/dist
 CMD [ "sh", "-c", "yarn start:prod"]
 # CMD [ "NODE_ENV=production", "node -r tsconfig-paths/register", "build/index.js"]
 

@@ -20,14 +20,14 @@ services:
   kca_api:
     container_name: kca_api
     restart: always
-    image: mastika/kca_api:1.0.0
+    image: mastika/kca_api:1.2.0
     build:
       context: ./
       dockerfile: Dockerfile
       args:
         - DOCKER_USER=$DOCKER_USER
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
         max-size: 5m
         max-file: 5
@@ -36,7 +36,15 @@ services:
     networks:
       - kda_network
     volumes:
-      - /home/$USER/Documents/logs:/app/logs
+      - type: bind
+        source: /home/$USER/Documents/logs
+        target: /app/logs
+      - type: bind
+        source: ${HOME}/Documents/kca-assets
+        target: /app/dist/public/assets
+      # - type: volume
+      #   source: assets_files
+      #   target: /app/public/assets
     # volumes:
     #   - type: volume
     #     source: assets_files
@@ -55,7 +63,7 @@ services:
     #       memory: 4g
 
 # volumes:
-# sql_data:
+#   assets_files:
 # driver: local
 
 networks:

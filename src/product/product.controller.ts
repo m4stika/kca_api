@@ -29,7 +29,7 @@ export class ProductController {
   constructor(
     private productService: ProductService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -67,6 +67,7 @@ export class ProductController {
     };
     return await this.productService.search(user, member);
   }
+
 
   @Get(':productId')
   @HttpCode(HttpStatus.OK)

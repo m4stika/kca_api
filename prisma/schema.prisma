@@ -299,3 +299,11 @@ model OrderDetail {
   @@unique([parentId, index])
   @@map("order_details")
 }
+
+model Promotion {
+  id     Int     @id @default(autoincrement())
+  source String  @db.VarChar(100)
+  active Boolean @default(true)
+
+  @@map("promotions")
+}

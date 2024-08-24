@@ -18,11 +18,11 @@ export class AnggotaService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private validationService: ValidationService,
-  ) {}
+  ) { }
 
   toAnggotaResponse(
     anggota: Anggota,
-  ): Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman'> {
+  ): Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman' | 'saldoSimpananSukarela'> {
     // get saldo simpanan
 
     return {
@@ -46,7 +46,7 @@ export class AnggotaService {
   async getSaldo(noAnggota: string) {
     const saldoSimpanan = await this.prisma.simpanan.findUnique({
       where: { noAnggota: noAnggota.toString() },
-      select: { totalSaldo: true },
+      select: { totalSaldo: true, sisaSukarela: true },
     });
 
     // const saldoPinjaman = await this.prisma.pinjaman.aggregate({
@@ -60,6 +60,7 @@ export class AnggotaService {
     });
     const result = {
       saldoSimpanan: new Prisma.Decimal(0),
+      saldoSimpananSukarela: new Prisma.Decimal(0),
       saldoPinjaman: new Prisma.Decimal(0),
       nilaiAngsuran: new Prisma.Decimal(0),
     };
@@ -90,8 +91,11 @@ export class AnggotaService {
       );
     }
 
-    if (saldoSimpanan)
+    if (saldoSimpanan) {
       result.saldoSimpanan = result.saldoSimpanan.add(saldoSimpanan.totalSaldo);
+      result.saldoSimpananSukarela = result.saldoSimpananSukarela.add(saldoSimpanan.sisaSukarela)
+
+    }
 
     // if (saldoPinjaman._sum.nilaiPinjaman)
     //   result.saldoPinjaman = result.saldoPinjaman.add(
@@ -105,7 +109,7 @@ export class AnggotaService {
     username: string,
     noAnggota?: string,
   ): Promise<
-    Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman' | 'nilaiAngsuran'>
+    Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman' | 'nilaiAngsuran' | 'saldoSimpananSukarela'>
   > {
     const anggota = await this.prisma.anggota.findFirst({
       where: { noAnggota: username },
@@ -139,27 +143,27 @@ export class AnggotaService {
     });
 
     // const AnggotaResponse = this.toAnggotaResponse(anggota);
-    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela };
   }
 
   async get(user: User, contactId: string): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username, contactId);
-    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela };
   }
 
   async find(user: User): Promise<AnggotaResponse> {
     const anggota = await this.checkMemberMustExist(user.username);
 
-    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       anggota.noAnggota,
     );
-    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
+    return { ...anggota, saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela };
   }
 
   async update(
@@ -185,17 +189,17 @@ export class AnggotaService {
       include: { User: true },
     });
 
-    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran } = await this.getSaldo(
+    const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       member.noAnggota,
     );
-    return { ...member, saldoPinjaman, saldoSimpanan, nilaiAngsuran };
+    return { ...member, saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela };
   }
 
   async remove(
     user: User,
     contactId: string,
   ): Promise<
-    Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman'>
+    Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman' | 'saldoSimpananSukarela'>
   > {
     const memberExists = await this.checkMemberMustExist(
       user.username,
@@ -213,7 +217,7 @@ export class AnggotaService {
     user: User,
     request: SearchAnggotaRequest,
   ): Promise<
-    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>[]>
+    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman' | 'saldoSimpananSukarela'>[]>
   > {
     const searchRequest: SearchAnggotaRequest = this.validationService.validate(
       AnggotaValidation.SEARCH,
@@ -264,5 +268,10 @@ export class AnggotaService {
         hasMore: true,
       },
     };
+  }
+
+  async promotion(): Promise<unknown> {
+    const result = await this.prisma.promotion.findMany({ where: { active: true } })
+    return result
   }
 }

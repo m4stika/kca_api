@@ -29,7 +29,7 @@ export class AnggotaController {
   constructor(
     private anggotaService: AnggotaService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -54,6 +54,21 @@ export class AnggotaController {
       `Controller.member.find ${JSON.stringify({ username: user.username })}`,
     );
     const result = await this.anggotaService.find(user);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Get('promotion')
+  @HttpCode(HttpStatus.OK)
+  async promotion(
+    @Auth() user: User,
+  ): Promise<ApiResponse<unknown>> {
+    this.logger.debug(
+      `Controller.anggota.promotion ${JSON.stringify({ username: user.username })}`,
+    );
+    const result = await this.anggotaService.promotion();
     return {
       status: 'success',
       data: result,
@@ -120,7 +135,7 @@ export class AnggotaController {
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('size', new ParseIntPipe({ optional: true })) size?: number,
   ): Promise<
-    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman'>[]>
+    ApiResponse<Omit<AnggotaResponse, 'saldoSimpanan' | 'saldoPinjaman' | 'saldoSimpananSukarela'>[]>
   > {
     this.logger.debug(
       `Controller.member.search ${JSON.stringify({ username: user.username, namaAnggota, noAnggota, telp, page, size })}`,

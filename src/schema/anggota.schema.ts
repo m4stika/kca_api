@@ -43,6 +43,7 @@ export class AnggotaValidation {
 const AnggotaResponse = AnggotaValidation.UPDATE.extend({
   saldoVoucher: ZodDecimalPositive(),
   saldoSimpanan: ZodDecimalPositive().default(0),
+  saldoSimpananSukarela: ZodDecimalPositive().default(0),
   saldoPinjaman: ZodDecimalPositive().default(0),
   nilaiAngsuran: ZodDecimalPositive().default(0).optional(),
   // username: z.string().min(1).max(50),

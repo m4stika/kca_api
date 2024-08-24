@@ -4,7 +4,16 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": [
-      { "include": "../logs/*", "outDir": "dist/logs", "watchAssets": true }
+      {
+        "include": "../logs/*",
+        "outDir": "dist/logs",
+        "watchAssets": true
+      },
+      {
+        "include": "public/**/*",
+        "outDir": "dist/public",
+        "watchAssets": true
+      }
     ],
     "watchAssets": true,
     "deleteOutDir": true

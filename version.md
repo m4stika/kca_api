@@ -12,3 +12,10 @@
   ```what changed
   add promotion services
   ```
+
+- 1.3.0
+
+  ```what changed
+    modify barang table, add field fileName
+    modify product info, get image from server
+  ```

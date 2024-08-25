@@ -10,6 +10,7 @@ export class ProductValidation {
     satuan: z.string(),
     stok: ZodDecimalPositive(),
     hargaJual: ZodDecimalPositive(),
+    fileName: z.string()
   });
 
   static readonly CREATE = this.baseSchema;

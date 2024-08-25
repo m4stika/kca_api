@@ -18,7 +18,7 @@ export class ProductService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private validationService: ValidationService,
-  ) {}
+  ) { }
 
   toProductResponse(product: Barang): Omit<ProductResponse, 'User'> {
     return {
@@ -29,6 +29,7 @@ export class ProductService {
       satuan: product.satuan,
       stok: product.stok,
       hargaJual: product.hargaJual,
+      fileName: product.fileName
     };
   }
 

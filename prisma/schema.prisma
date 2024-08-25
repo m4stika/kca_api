@@ -264,6 +264,7 @@ model Barang {
   satuan      String        @db.VarChar(10)
   stok        Decimal       @db.Decimal(16, 2)
   hargaJual   Decimal       @db.Decimal(16, 2)
+  fileName    String        @default("noname.png") @db.VarChar(50)
   OrderDetail OrderDetail[]
 
   @@map("barang")

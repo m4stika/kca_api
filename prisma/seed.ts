@@ -33,6 +33,17 @@ const updateUserPassword = async () => {
   });
 };
 
+const updateProducts = async () => {
+  const images = ['product01.jpg', 'product02.jpg', 'product03.jpg', 'product04.jpg', 'product05.jpg', 'product06.jpg', 'product07.jpg', 'product08.jpg', 'product09.jpg']
+
+  const products = await prisma.barang.findMany({ select: { kodeBarang: true } })
+  for (const product of products) {
+    const random = Math.floor(Math.random() * Math.floor(9));
+    const fileName = images[random]
+    await prisma.barang.update({ where: { kodeBarang: product.kodeBarang }, data: { fileName } })
+  }
+}
+
 const generateUser = async () => {
   const usersFromDb = await prisma.user.findMany();
   const contacts = await prisma.member.findMany();
@@ -43,19 +54,19 @@ const generateUser = async () => {
   const usersData: User[] = usersFromDb
     ? usersFromDb
     : [
-        {
-          username: 'admin',
-          email: 'admin@gmail.com',
-          password: 'admin',
-          name: 'admin',
-        },
-        {
-          username: 'super-admin',
-          email: 'root@gmail.com',
-          password: 'super',
-          name: 'super admin',
-        },
-      ];
+      {
+        username: 'admin',
+        email: 'admin@gmail.com',
+        password: 'admin',
+        name: 'admin',
+      },
+      {
+        username: 'super-admin',
+        email: 'root@gmail.com',
+        password: 'super',
+        name: 'super admin',
+      },
+    ];
 
   const dataResult = await Promise.all(
     usersData.map(async (item) => ({
@@ -85,7 +96,7 @@ async function main() {
   if (process.env.NODE_ENV !== 'development') return;
   // await removeAllRecords();
   // await generateUser();
-  await updateUserPassword();
+  // await updateUserPassword();
   // await generateEmployee();
   // await generateCustomer();
   // await generateTypes();
@@ -93,6 +104,7 @@ async function main() {
   // await generateFixedAssetType();
   // await generateParameters();
   // await generateUnits();
+  await updateProducts()
 }
 
 main()

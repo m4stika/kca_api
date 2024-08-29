@@ -56,15 +56,15 @@ export class ProductController {
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('size', new ParseIntPipe({ optional: true })) size?: number,
   ): Promise<ApiResponse<ProductResponse[]>> {
-    this.logger.debug(
-      `Controller.product.search ${JSON.stringify({ username: user.username, namaBarang, kodeBarang, page, size })}`,
-    );
     const member: SearchProductRequest = {
       kodeBarang,
       namaBarang,
       page: page || 1,
-      size: size || 10,
+      size: size || 30,
     };
+    this.logger.debug(
+      `Controller.product.search ${JSON.stringify({ username: user.username, namaBarang, kodeBarang, page: member.page, size: member.size })}`,
+    );
     return await this.productService.search(user, member);
   }
 

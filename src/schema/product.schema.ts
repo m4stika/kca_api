@@ -18,10 +18,15 @@ export class ProductValidation {
   static readonly UPDATE = this.baseSchema;
 
   static readonly SEARCH = z.object({
-    kodeBarang: z.string().min(1).optional(),
-    namaBarang: z.string().min(1).optional(),
     page: z.number().min(1).positive(),
     size: z.number().min(1).positive(),
+    searchValue: z.string().min(1).optional(),
+    orderBy: z
+      .object({
+        id: z.string().min(1),
+        sort: z.enum(["asc", "desc"])
+      })
+      .optional(),
   });
 }
 

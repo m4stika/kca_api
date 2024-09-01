@@ -11,8 +11,7 @@ import { Logger } from 'winston';
 @Injectable()
 export class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, string>
-  implements OnModuleInit, OnModuleDestroy
-{
+  implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {
@@ -45,25 +44,25 @@ export class PrismaService
         ? this.logger.debug(item)
         : this.logger.debug(`Prisma Query : `, e.query);
     });
-    /* this.$queryRaw`SELECT 1+1`
-      .then(() =>
-        this.logger.info(
-          'Database connection has been established successfully.',
-        ),
-      )
-      .catch((err) =>
-        this.logger.error(`Unable to connect to the database: ${err}`),
-      ); */
+    try {
+      await this.$connect();
+      this.logger.info('Database connection has been established successfully.');
 
-    this.$connect()
-      .then(() =>
-        this.logger.info(
-          'Database connection has been established successfully.',
-        ),
-      )
-      .catch((err) =>
-        this.logger.error(`Unable to connect to the database: ${err}`),
-      );
+      // Set Global Timezone after successful connection
+      // await this.$executeRaw`SET GLOBAL time_zone = '+08:00';`;
+      // this.logger.info('Global timezone set to Asia/Makassar (+08:00).');
+    } catch (err) {
+      this.logger.error(`Unable to connect to the database: ${err}`);
+    }
+    // this.$connect()
+    //   .then(() =>
+    //     this.logger.info(
+    //       'Database connection has been established successfully.',
+    //     ),
+    //   )
+    //   .catch((err) =>
+    //     this.logger.error(`Unable to connect to the database: ${err}`),
+    //   );
   }
 
   async onModuleDestroy() {

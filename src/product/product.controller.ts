@@ -51,21 +51,21 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async search(
     @Auth() user: User,
-    @Query('namaBarang') namaBarang?: string,
-    @Query('kodeBarang') kodeBarang?: string,
+    @Query('searchValue') searchValue?: string,
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('size', new ParseIntPipe({ optional: true })) size?: number,
+    @Query('orderBy') orderBy?: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
-    const member: SearchProductRequest = {
-      kodeBarang,
-      namaBarang,
+    const pagination: SearchProductRequest = {
+      searchValue,
       page: page || 1,
       size: size || 30,
+      orderBy: orderBy ? JSON.parse(orderBy as unknown as string) : undefined,
     };
     this.logger.debug(
-      `Controller.product.search ${JSON.stringify({ username: user.username, namaBarang, kodeBarang, page: member.page, size: member.size })}`,
+      `Controller.product.search ${JSON.stringify({ username: user.username, page: pagination.page, size: pagination.size, searchValue })}`,
     );
-    return await this.productService.search(user, member);
+    return await this.productService.search(user, pagination);
   }
 
 

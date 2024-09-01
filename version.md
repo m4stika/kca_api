@@ -19,3 +19,13 @@
     modify barang table, add field fileName
     modify product info, get image from server
   ```
+
+- 1.3.1
+
+  ```what changed
+    add table parameters
+    add function getInterestRate
+    modify product search pagination
+    modify product pagination, add OrderBy and filter
+
+  ```

@@ -127,16 +127,23 @@ export class ProductService {
 
     const filter: Prisma.BarangWhereInput[] = [];
 
-    if (searchRequest.kodeBarang) {
+    if (searchRequest.searchValue) {
       // add name filter
       filter.push({
-        OR: [{ kodeBarang: { contains: searchRequest.kodeBarang } }],
+        OR: [
+          { kodeBarang: { contains: searchRequest.searchValue } },
+          { namaBarang: { contains: searchRequest.searchValue } }
+        ],
       });
     }
-    if (searchRequest.namaBarang) {
-      // add name email
-      filter.push({ namaBarang: { contains: searchRequest.namaBarang } });
-    }
+
+    const orderBy: Prisma.BarangOrderByWithRelationInput[] = [];
+
+    const orderByRequest = searchRequest.orderBy && {
+      [`${searchRequest.orderBy.id}`]: `${searchRequest.orderBy.sort}`,
+    };
+    orderByRequest && orderBy.push(orderByRequest);
+
 
     const skip = (searchRequest.page - 1) * searchRequest.size;
 
@@ -144,24 +151,29 @@ export class ProductService {
       where: { AND: filter },
       take: searchRequest.size,
       skip,
+      orderBy
     });
 
     const total = await this.prisma.barang.count({
       where: { AND: filter },
     });
 
+    const paging = {
+      totalRows: total,
+      totalPages: Math.ceil(total / searchRequest.size),
+      rowPerPage: searchRequest.size,
+      page: searchRequest.page,
+      previous: searchRequest.page <= 1 ? 1 : searchRequest.page - 1,
+    }
+
     return {
       status: 'success',
       // data: products.map((contact) => this.toProductResponse(contact)),
       data: products,
       paging: {
-        totalRows: total,
-        totalPages: Math.ceil(total / searchRequest.size),
-        rowPerPage: searchRequest.size,
-        page: searchRequest.page,
-        previous: searchRequest.page <= 1 ? 1 : searchRequest.page - 1,
+        ...paging,
         next: searchRequest.page + 1,
-        hasMore: true,
+        hasMore: paging.totalPages > searchRequest.page,
       },
     };
   }

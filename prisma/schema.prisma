@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Parameter {
+  id            Int     @id @default(autoincrement())
+  company       String  @db.VarChar(50)
+  address       String  @db.VarChar(100)
+  phone         String  @db.VarChar(30)
+  email         String  @db.VarChar(50)
+  fixedRate     Decimal @db.Decimal(5, 2)
+  decliningRate Decimal @db.Decimal(5, 2)
+
+  @@map("parameters")
+}
+
 model User {
   username String    @id @db.VarChar(50)
   email    String    @unique @db.VarChar(60)

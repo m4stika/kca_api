@@ -29,7 +29,7 @@ export class PinjamanController {
   constructor(
     private pinjamanService: PinjamanService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -78,6 +78,22 @@ export class PinjamanController {
       `Controller.pinjaman.getByAnggota ${JSON.stringify({ username: user.username, noAnggota })}`,
     );
     const result = await this.pinjamanService.getByAnggota(noAnggota);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+
+  @Get('defaultInterestRate')
+  @HttpCode(HttpStatus.OK)
+  async getInterestRate(
+    @Auth() user: User,
+  ): Promise<ApiResponse<unknown>> {
+    this.logger.debug(
+      `Controller.pinjaman.getInterestRate ${JSON.stringify({ username: user.username })}`,
+    );
+    const result = await this.pinjamanService.getInterestRate()
     return {
       status: 'success',
       data: result,

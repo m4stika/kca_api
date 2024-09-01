@@ -66,6 +66,7 @@ ENV LOG_FILE_PATH='logs'
 ENV MULTER_DESTINATION_PATH='./upload-files'
 ENV MULTER_FILE_SIZE_LIMIT=2097152
 ENV MULTER_FILES_LIMIT=2
+ENV TZ=Asia/Makassar
 
 # WORKDIR app/dist
 CMD [ "sh", "-c", "yarn start:prod"]

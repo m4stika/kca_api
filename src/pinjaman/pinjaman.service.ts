@@ -18,7 +18,7 @@ export class PinjamanService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private validationService: ValidationService,
-  ) {}
+  ) { }
 
   /* toPinjamanResponse(product: Barang): Omit<PinjamanResponse, 'User'> {
     return {
@@ -122,6 +122,12 @@ export class PinjamanService {
     );
 
     return pinjamanResult;
+  }
+
+  async getInterestRate() {
+    const interestRate = await this.prisma.parameter.findFirst({ select: { fixedRate: true, decliningRate: true } })
+    if (!interestRate) throw new NotFoundException("Data default suku bunga tidak ditemukan")
+    return interestRate
   }
 
   async update(

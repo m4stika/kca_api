@@ -36,9 +36,9 @@ model User {
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @db.VarChar(50)
   valid     Boolean  @default(true)
-  userAgent String
+  userAgent String   @db.VarChar(100)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   username  String   @db.VarChar(50)

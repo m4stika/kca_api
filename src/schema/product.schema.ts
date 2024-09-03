@@ -21,6 +21,7 @@ export class ProductValidation {
     page: z.number().min(1).positive(),
     size: z.number().min(1).positive(),
     searchValue: z.string().min(1).optional(),
+    filter: z.string().optional(),
     orderBy: z
       .object({
         id: z.string().min(1),

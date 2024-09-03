@@ -2,6 +2,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class AuthService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private tokenService: TokenService,
-  ) {}
+  ) { }
 
   register = async (
     request: UserRegisterRequest & { userAgent: string },
@@ -41,14 +42,41 @@ export class AuthService {
     if (userInDatabase === 1)
       throw new ConflictException('username already registered');
 
-    const emailInDatabase = await this.prisma.user.count({
-      where: { email: newUser.email },
+    // const emailInDatabase = await this.prisma.user.count({
+    //   where: { email: newUser.email },
+    // });
+    // if (emailInDatabase)
+    //   throw new ConflictException('email address already registered');
+
+    const memberInDatabase = await this.prisma.user.count({
+      where: { memberId: newUser.memberId },
     });
-    if (emailInDatabase)
-      throw new ConflictException('email address already registered');
+    if (memberInDatabase)
+      throw new ConflictException('Member-id already registered');
+
+    const NIKInDatabase = await this.prisma.user.count({
+      where: { NIK: newUser.NIK },
+    });
+    if (NIKInDatabase)
+      throw new ConflictException('NIK already registered');
+
+    const phoneInDatabase = await this.prisma.user.count({
+      where: { phone: newUser.phone },
+    });
+    if (phoneInDatabase)
+      throw new ConflictException('Phone Number already registered');
+
+    // check memberid and NIK must exist in table anggota
+    const memberExists = await this.prisma.anggota.count({
+      where: { noAnggota: newUser.memberId, NIK: newUser.NIK }
+    })
+    if (!memberExists) throw new NotFoundException("Member-id or NIK not registered")
 
     const newInput = {
       ...newUser,
+      username: newUser.username.toLowerCase().trim(),
+      // memberId: newUser.memberId,
+      // NIK: newUser.NIK,
       confirmedPassword: undefined,
       sessions: undefined,
       password: await hash(newUser.password, 10),
@@ -58,6 +86,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         ...newInput,
+        name: newUser.username.trim(),
         sessions: {
           create: [{ userAgent: userAgent || '' }],
         },
@@ -72,6 +101,9 @@ export class AuthService {
         username: true,
         name: true,
         email: true,
+        memberId: true,
+        NIK: true,
+        phone: true,
         sessions: { select: { id: true, valid: true, username: true } },
         // Roles: { select: { role: true } },
         // UserModule: { select: { appModule: true } },
@@ -83,7 +115,7 @@ export class AuthService {
     // const modules = user.UserModule.map(({ appModule }) => AppModuleObject[appModule]);
 
     // const payload = { ...newUser, session: sessions[0], Roles: userRoles };
-    const payload = { ...newUser, session: sessions[0] };
+    const payload = { ...neoUser, session: sessions[0] };
     const { accessToken, refreshToken } =
       await this.tokenService.signToken(payload);
 
@@ -94,7 +126,7 @@ export class AuthService {
     request: UserLoginRequest & { userAgent: string },
   ): Promise<UserWithToken> => {
     this.logger.debug(`UserService.Login(${JSON.stringify(request)})`);
-    const loginRequest = this.validationService.validate<UserLoginRequest>(
+    const loginRequest = this.validationService.validate(
       UserValidation.LOGIN,
       request,
     );
@@ -103,9 +135,10 @@ export class AuthService {
       where: {
         OR: [
           { username: loginRequest.username },
+          { memberId: loginRequest.username },
+          { NIK: loginRequest.username },
+          { phone: loginRequest.username },
           { email: loginRequest.username },
-          // { Contact: { NIP: loginRequest.username } },
-          { Member: { memberId: loginRequest.username } },
         ],
       },
       select: {
@@ -113,6 +146,9 @@ export class AuthService {
         password: true,
         name: true,
         email: true,
+        memberId: true,
+        NIK: true,
+        phone: true,
         // Roles: true,
       },
     });

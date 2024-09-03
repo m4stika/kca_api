@@ -52,6 +52,7 @@ export class ProductController {
   async search(
     @Auth() user: User,
     @Query('searchValue') searchValue?: string,
+    @Query('filter') filter?: string,
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('size', new ParseIntPipe({ optional: true })) size?: number,
     @Query('orderBy') orderBy?: string,
@@ -61,13 +62,28 @@ export class ProductController {
       page: page || 1,
       size: size || 30,
       orderBy: orderBy ? JSON.parse(orderBy as unknown as string) : undefined,
+      filter
     };
     this.logger.debug(
-      `Controller.product.search ${JSON.stringify({ username: user.username, page: pagination.page, size: pagination.size, searchValue })}`,
+      `Controller.product.search ${JSON.stringify({ username: user.username, page: pagination.page, size: pagination.size, searchValue, filter })}`,
     );
     return await this.productService.search(user, pagination);
   }
 
+  @Get('group-product')
+  @HttpCode(HttpStatus.OK)
+  async groupProduct(
+    @Auth() user: User,
+  ): Promise<ApiResponse<unknown>> {
+    this.logger.debug(
+      `Controller.product.groupProducts ${JSON.stringify({ username: user.username })}`,
+    );
+    const result = await this.productService.groupProduct(user);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
 
   @Get(':productId')
   @HttpCode(HttpStatus.OK)

@@ -4,7 +4,7 @@ import { TSession, UserResponse } from 'src/schema/user.schema';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   findOne = async (username: string): Promise<UserResponse> => {
     const user = await this.prisma.user.findUnique({
@@ -14,6 +14,9 @@ export class UserService {
         password: true,
         name: true,
         email: true,
+        memberId: true,
+        NIK: true,
+        phone: true,
         // Roles: true,
         sessions: { where: { username, valid: true }, take: 1 },
       },
@@ -31,6 +34,9 @@ export class UserService {
       username: user.username,
       name: user.name,
       email: user.email,
+      memberId: user.memberId,
+      NIK: user.NIK,
+      phone: user.phone,
       // Roles: userRoles,
       session: session,
     };
@@ -43,6 +49,9 @@ export class UserService {
         username: true,
         email: true,
         name: true,
+        memberId: true,
+        NIK: true,
+        phone: true,
         sessions: {
           where: { valid: true },
           select: {

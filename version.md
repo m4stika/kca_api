@@ -27,5 +27,12 @@
     add function getInterestRate
     modify product search pagination
     modify product pagination, add OrderBy and filter
+    add groupProduct service
 
+  ```
+- 1.4.0
+
+  ```what changed
+    modify table user, add memberId, NIK, whatsapp number
+    modify register service
   ```

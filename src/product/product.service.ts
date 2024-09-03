@@ -77,6 +77,11 @@ export class ProductService {
     return product; //this.toProductResponse(contact);
   }
 
+  async groupProduct(user: User): Promise<unknown> {
+    const productGroup = await this.prisma.$queryRaw`SELECT DISTINCT namaJenis as groupProduct FROM barang`;
+    return productGroup; //this.toProductResponse(contact);
+  }
+
   async update(
     user: User,
     request: UpdateProductRequest,
@@ -127,6 +132,8 @@ export class ProductService {
 
     const filter: Prisma.BarangWhereInput[] = [];
 
+    filter.push({ stok: { gt: 0 } })
+
     if (searchRequest.searchValue) {
       // add name filter
       filter.push({
@@ -136,6 +143,8 @@ export class ProductService {
         ],
       });
     }
+
+    if (searchRequest.filter) filter.push({ namaJenis: searchRequest.filter })
 
     const orderBy: Prisma.BarangOrderByWithRelationInput[] = [];
 

@@ -28,6 +28,7 @@ export class AnggotaService {
     return {
       noAnggota: anggota.noAnggota,
       nip: anggota.nip,
+      NIK: anggota.NIK,
       namaunit: anggota.namaunit,
       namasub: anggota.namasub,
       keterangan: anggota.keterangan,
@@ -120,6 +121,8 @@ export class AnggotaService {
       throw new NotFoundException('Contact not found');
     }
 
+    if (!anggota.User) throw new NotFoundException("User not registered")
+
     return anggota;
   }
 
@@ -150,7 +153,7 @@ export class AnggotaService {
   }
 
   async get(user: User, contactId: string): Promise<AnggotaResponse> {
-    const anggota = await this.checkMemberMustExist(user.username, contactId);
+    const anggota = await this.checkMemberMustExist(user.memberId, contactId);
     const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       anggota.noAnggota,
     );
@@ -158,7 +161,7 @@ export class AnggotaService {
   }
 
   async find(user: User): Promise<AnggotaResponse> {
-    const anggota = await this.checkMemberMustExist(user.username);
+    const anggota = await this.checkMemberMustExist(user.memberId);
 
     const { saldoPinjaman, saldoSimpanan, nilaiAngsuran, saldoSimpananSukarela } = await this.getSaldo(
       anggota.noAnggota,
@@ -176,7 +179,7 @@ export class AnggotaService {
     );
 
     const memberExists = await this.checkMemberMustExist(
-      user.username,
+      user.memberId,
       updateRequest.noAnggota,
     );
 
@@ -202,7 +205,7 @@ export class AnggotaService {
     Omit<AnggotaResponse, 'User' | 'saldoSimpanan' | 'saldoPinjaman' | 'saldoSimpananSukarela'>
   > {
     const memberExists = await this.checkMemberMustExist(
-      user.username,
+      user.memberId,
       contactId,
     );
 
@@ -244,14 +247,14 @@ export class AnggotaService {
     const skip = (searchRequest.page - 1) * searchRequest.size;
 
     const contacts = await this.prisma.anggota.findMany({
-      where: { noAnggota: user.username, AND: filter },
+      where: { noAnggota: user.memberId, AND: filter },
       take: searchRequest.size,
       skip,
       include: { User: true },
     });
 
     const total = await this.prisma.anggota.count({
-      where: { noAnggota: user.username, AND: filter },
+      where: { noAnggota: user.memberId, AND: filter },
     });
 
     return {

@@ -6,6 +6,7 @@ export class AnggotaValidation {
   private static readonly baseSchema = z.object({
     noAnggota: z.string().min(1).max(30),
     nip: z.string(),
+    NIK: z.string(),
     namaunit: z.string(),
     namasub: z.string(),
     keterangan: z.string().nullish(),
@@ -47,7 +48,7 @@ const AnggotaResponse = AnggotaValidation.UPDATE.extend({
   saldoPinjaman: ZodDecimalPositive().default(0),
   nilaiAngsuran: ZodDecimalPositive().default(0).optional(),
   // username: z.string().min(1).max(50),
-  User: UserValidation.REGISTER,
+  User: UserValidation.REGISTER.nullable(),
 });
 
 export type CreateAnggotaRequest = z.infer<typeof AnggotaValidation.CREATE>;

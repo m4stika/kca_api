@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Param,
   Post,
   Req,
   Res,
@@ -24,14 +26,16 @@ import {
 } from 'src/schema/user.schema';
 import { Logger } from 'winston';
 import { AuthService } from './auth.service';
+import { WhatsAppService } from 'src/common/whatsapp.service';
 
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
+    private readonly whatsappService: WhatsAppService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(
@@ -112,6 +116,25 @@ export class AuthController {
     return {
       status: 'success',
       data: user,
+    };
+  }
+
+  @Get('isValidPhoneNumber/:phoneNumber')
+  @HttpCode(HttpStatus.OK)
+  async isValidPhoneNumber(
+    @Param('phoneNumber') phoneNumber: string,
+  ): Promise<ApiResponse<boolean>> {
+    this.logger.debug(`Controller.get.isValidPhoneNumber ${phoneNumber}`);
+    const isValid = await this.whatsappService.checkPhoneNumber(phoneNumber)
+    if (isValid) await this.whatsappService.sendMessage(phoneNumber, `
+*=== KCA-MOBILE ===* 
+Nomor ${phoneNumber} berhasil di validasi
+`)
+    if (!isValid) throw new BadRequestException(`Number ${phoneNumber} is not registered on Whatsapp`)
+
+    return {
+      status: 'success',
+      data: isValid,
     };
   }
 }

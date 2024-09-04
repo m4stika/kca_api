@@ -11,6 +11,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'src/common/prisma.service';
 import { TokenService } from 'src/common/token.service';
 import { ValidationService } from 'src/common/validation.service';
+import { WhatsAppService } from 'src/common/whatsapp.service';
 import {
   TSession,
   UserLoginRequest,
@@ -27,6 +28,7 @@ export class AuthService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private tokenService: TokenService,
+    private whatsappService: WhatsAppService
   ) { }
 
   register = async (
@@ -119,6 +121,16 @@ export class AuthService {
     const { accessToken, refreshToken } =
       await this.tokenService.signToken(payload);
 
+    await this.whatsappService.sendMessage(user.phone, `
+*=== KCA-MOBILE ===* 
+
+Selamat registrasi anda berhasil.
+silahkan Login menggunakan
+- username : ${user.username} / ${user.phone} / ${user.memberId}
+- password : ${newUser.password}
+
+Tunggu promo menarik dari kami, salam hangat..
+`)
     return { ...payload, accessToken, refreshToken };
   };
 
@@ -180,9 +192,14 @@ export class AuthService {
     // const modules = user.UserModule.map(({ appModule }) => AppModuleObject[appModule]);
     const { password, ...newUser } = user;
     const payload = { ...newUser, session };
-    const { accessToken, refreshToken } =
-      await this.tokenService.signToken(payload);
+    const { accessToken, refreshToken } = await this.tokenService.signToken(payload);
 
+    await this.whatsappService.sendMessage(user.phone, `
+*=== KCA-MOBILE ===* 
+
+    Anda baru saja login, dengan user ${loginRequest.username}
+`)
+    // await this.whatsappService.sendMessage("+62 877-3888-7001", "login success, auto replay from KCA mobile")
     return { ...payload, accessToken, refreshToken };
   };
 
@@ -206,4 +223,9 @@ export class AuthService {
     if (!session) return false;
     return session;
   };
+
+  //check validate whatsapp Number
+  // isValidNumber = async (phoneNumber: string) => {
+  //   return this.whatsappService.checkPhoneNumber(phoneNumber)
+  // }
 }

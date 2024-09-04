@@ -10,6 +10,7 @@ import makeWASocket, {
 import { Boom } from '@hapi/boom';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import pino from 'pino';
 
 @Injectable()
 export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
@@ -24,9 +25,9 @@ export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
 
     this.socket = makeWASocket({
       auth: state,
-      printQRInTerminal: true
-      // logger: this.logger,
-      // logger: require('pino')({ level: 'info' }),
+      printQRInTerminal: true,
+      logger: pino({ level: "silent" })
+      // logger: require('pino')({ level: 'silent' }),
     });
 
     this.eventEmitter = this.socket.ev;
@@ -41,12 +42,24 @@ export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
           this.onModuleInit();
         }
       } else if (connection === 'open') {
-        console.log('WhatsApp connection opened!');
+        this.logger.info('WhatsApp connection opened!');
       }
     });
 
     this.eventEmitter.on('messages.upsert', (m) => {
-      console.log('Received messages:', m);
+      const msg = m.messages[0];
+
+      // Cek apakah pesan berasal dari grup atau tidak
+      // const isGroup = msg.key.remoteJid?.endsWith('@g.us') || msg.key.remoteJid?.endsWith("@broadcast");
+      const isPersonal = msg.key.remoteJid?.endsWith("@s.whatsapp.net")
+      const from = msg.key.remoteJid?.slice(0, msg.key.remoteJid.indexOf("@"))
+
+      if (isPersonal && !msg.key.fromMe) {
+        // if (isPersonal) {
+        // Hanya log pesan yang berasal dari percakapan pribadi
+        this.logger.info(`New message from ${from}: ${msg.message?.conversation}`);
+        // this.logger.info(`Received messages: ${JSON.stringify(m.messages, undefined, 3)}`);
+      }
     });
   }
 
@@ -57,6 +70,33 @@ export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
   }
 
   async sendMessage(to: string, message: string): Promise<void> {
-    await this.socket.sendMessage(to, { text: message });
+    const isValidNumber = await this.checkPhoneNumber(to)
+    if (!isValidNumber) {
+      this.logger.error(`Cannot send message. The number ${to} is not valid.`)
+      return
+    }
+    const toRegex = to.replace(/\D/g, "")
+    const providerId = '@s.whatsapp.net'
+    const defaultTo = toRegex.startsWith("0")
+      ? `62${toRegex.slice(1)}` : toRegex.startsWith("+62") ? toRegex.slice(1) : toRegex
+
+    await this.socket.sendMessage(`${defaultTo}${providerId}`, { text: message });
+  }
+
+  async checkPhoneNumber(phoneNumber: string): Promise<boolean> {
+    try {
+      const result = await this.socket.onWhatsApp(phoneNumber);
+
+      if (result && result.length > 0) {
+        this.logger.info(`Number ${phoneNumber} is valid on WhatsApp.`);
+        return true;
+      } else {
+        this.logger.warn(`Number ${phoneNumber} is not registered on WhatsApp.`);
+        return false;
+      }
+    } catch (error) {
+      this.logger.error(`Failed to check number ${phoneNumber}: ${(error as Error).message}`);
+      return false;
+    }
   }
 }

@@ -9,12 +9,14 @@ import { transports } from 'winston';
 import formatOptions from './logger-format';
 import LoggerLevel from './logger-levels';
 
+import pino from 'pino';
+
 @Injectable()
 export class LoggerService implements WinstonModuleOptionsFactory {
   constructor(
     @Inject(environmentConfig.KEY)
     private readonly configService: ConfigType<typeof environmentConfig>,
-  ) {}
+  ) { }
   createWinstonModuleOptions(): WinstonModuleOptions {
     return {
       levels: LoggerLevel.levels,

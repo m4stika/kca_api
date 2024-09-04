@@ -129,7 +129,9 @@ silahkan Login menggunakan
 - username : ${user.username} / ${user.phone} / ${user.memberId}
 - password : ${newUser.password}
 
-Tunggu promo menarik dari kami, salam hangat..
+Tunggu promo menarik dari kami. 
+
+Terimakasih.
 `)
     return { ...payload, accessToken, refreshToken };
   };
@@ -194,11 +196,6 @@ Tunggu promo menarik dari kami, salam hangat..
     const payload = { ...newUser, session };
     const { accessToken, refreshToken } = await this.tokenService.signToken(payload);
 
-    await this.whatsappService.sendMessage(user.phone, `
-*=== KCA-MOBILE ===* 
-
-    Anda baru saja login, dengan user ${loginRequest.username}
-`)
     // await this.whatsappService.sendMessage("+62 877-3888-7001", "login success, auto replay from KCA mobile")
     return { ...payload, accessToken, refreshToken };
   };

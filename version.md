@@ -36,3 +36,9 @@
     modify table user, add memberId, NIK, whatsapp number
     modify register service
   ```
+- 1.4.1
+
+  ```what changed
+    add whatsapp services
+    modify auth, register and login user send whatsapp if success
+  ```

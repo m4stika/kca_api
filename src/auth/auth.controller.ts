@@ -86,6 +86,13 @@ export class AuthController {
       newUser = other;
     }
 
+    await this.whatsappService.sendMessage(newUser.phone, `
+*=== KCA-MOBILE ===* 
+
+Anda baru saja login dari ${userAgent}
+dengan user ${newUser.username}
+`)
+
     response.status(HttpStatus.OK).json({
       status: 'success',
       data: newUser,

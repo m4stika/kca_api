@@ -26,6 +26,7 @@ export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
     this.socket = makeWASocket({
       auth: state,
       printQRInTerminal: true,
+      qrTimeout: 120000, // 2 minute
       logger: pino({ level: "silent" })
       // logger: require('pino')({ level: 'silent' }),
     });

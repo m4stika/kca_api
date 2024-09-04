@@ -20,7 +20,7 @@ services:
   kca_api:
     container_name: kca_api
     restart: always
-    image: mastika/kca_api:1.4.0
+    image: mastika/kca_api:1.4.1
     build:
       context: ./
       dockerfile: Dockerfile
@@ -42,6 +42,9 @@ services:
       - type: bind
         source: ${HOME}/Documents/kca-assets
         target: /app/dist/public/assets
+      - type: bind
+        source: ${HOME}/Documents/kca-auth-info
+        target: /app/auth_info
       # - type: volume
       #   source: assets_files
       #   target: /app/public/assets
@@ -70,3 +73,4 @@ networks:
   kda_network:
     external: true
     name: kda_network
+# sudo chown :1001 kca-auth-info

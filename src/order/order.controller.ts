@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class OrderController {
   constructor(
     private orderService: OrderService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -125,6 +126,22 @@ export class OrderController {
       `Controller.order.update ${JSON.stringify({ ...request, username: user.username })}`,
     );
     const result = await this.orderService.update(id, request);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Patch('cancel')
+  @HttpCode(HttpStatus.OK)
+  async cancel(
+    @Auth() user: User,
+    @Body() request: { id: number },
+  ): Promise<ApiResponse<string>> {
+    this.logger.debug(
+      `Controller.order.cancel ${JSON.stringify({ username: user.username, id: request.id })}`,
+    );
+    const result = await this.orderService.cancel(request.id);
     return {
       status: 'success',
       data: result,

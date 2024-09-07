@@ -22,7 +22,7 @@ export class OrderService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private validationService: ValidationService,
-  ) {}
+  ) { }
 
   // toOrderResponse(product: Barang): Omit<OrderResponse, 'User'> {
   //   return {
@@ -198,6 +198,17 @@ export class OrderService {
 
     return 'Data has been deleted';
   }
+
+  async cancel(id: number): Promise<string> {
+    await this.checkOrderMustExist(id);
+
+    await this.prisma.order.update({
+      where: { id },
+      data: { orderStatus: "CANCELED" }
+    });
+
+    return 'Data has been canceled';
+  }
   /*
   async search(
     user: User,
@@ -248,5 +259,5 @@ export class OrderService {
       },
     };
   }
-	 */
+   */
 }

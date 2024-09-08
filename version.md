@@ -42,4 +42,6 @@
     add whatsapp services
     modify auth, register and login user send whatsapp if success
     add order cancelation
+    modify get order by-member, add parameter orderStatus
+    modify loan create.
   ```

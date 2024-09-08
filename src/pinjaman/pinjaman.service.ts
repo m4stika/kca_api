@@ -5,6 +5,7 @@ import { PrismaService } from 'src/common/prisma.service';
 import { ValidationService } from 'src/common/validation.service';
 import {
   CreatePinjamanRequest,
+  PinjamanDetail,
   PinjamanResponse,
   PinjamanValidation,
   SearchPinjamanRequest,
@@ -71,17 +72,44 @@ export class PinjamanService {
     //   PinjamanValidation.CREATE,
     //   request,
     // );
+    //
+    const { RincianPinjaman, ...otherRequest } = request
+    let tahun = new Date().getFullYear()
+    let bulan = new Date().getMonth()
 
-    const requestValidation: CreatePinjamanRequest = {
-      ...request,
+    const requestValidation: Omit<CreatePinjamanRequest, "RincianPinjaman"> = {
+      ...otherRequest,
       tglPinjam: new Date(request.tglPinjam),
-      nilaiPinjaman: new Prisma.Decimal(request.nilaiPinjaman),
-      persenBunga: new Prisma.Decimal(request.persenBunga),
-      biayaAdmin: new Prisma.Decimal(request.biayaAdmin),
+      nilaiPinjaman: new Prisma.Decimal(Number(request.nilaiPinjaman)),
+      persenBunga: new Prisma.Decimal(Number(request.persenBunga)),
+      biayaAdmin: new Prisma.Decimal(Number(request.biayaAdmin)),
+      verificationStatus: "ON_VERIFICATION"
     };
+    const rincianPinjaman: PinjamanDetail[] = RincianPinjaman.map(rincian => {
+      bulan++
+      if (bulan === 13) {
+        bulan = 1
+        tahun++
+      }
+
+      return {
+        ...rincian,
+        bulan,
+        tahun,
+        rpPinjaman: new Prisma.Decimal(rincian.rpPinjaman),
+        rpBunga: new Prisma.Decimal(rincian.rpBunga),
+        rpBayar: new Prisma.Decimal(0),
+        lunas: "N"
+      }
+    })
 
     const pinjaman = await this.prisma.pinjaman.create({
-      data: { ...requestValidation },
+      data: {
+        ...requestValidation,
+        RincianPinjaman: {
+          createMany: { data: rincianPinjaman }
+        }
+      },
     });
 
     const terbayar = await this.getPinjamanTerbayar(pinjaman.refCode);
@@ -125,7 +153,7 @@ export class PinjamanService {
   }
 
   async getInterestRate() {
-    const interestRate = await this.prisma.parameter.findFirst({ select: { fixedRate: true, decliningRate: true } })
+    const interestRate = await this.prisma.parameter.findFirst({ select: { fixedRate: true, decliningRate: true, adminFee: true } })
     if (!interestRate) throw new NotFoundException("Data default suku bunga tidak ditemukan")
     return interestRate
   }

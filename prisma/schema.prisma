@@ -15,6 +15,7 @@ model Parameter {
   email         String  @db.VarChar(50)
   fixedRate     Decimal @db.Decimal(5, 2)
   decliningRate Decimal @db.Decimal(5, 2)
+  adminFee      Decimal @default(1) @db.Decimal(5, 2)
 
   @@map("parameters")
 }
@@ -222,21 +223,22 @@ model Anggota {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Pinjaman {
-  refCode         String            @id @unique @db.UniqueIdentifier
-  noAnggota       String            @db.VarChar(50)
-  Anggota         Anggota           @relation(fields: [noAnggota], references: [noAnggota])
-  tglPinjam       DateTime          @db.Date
-  isPinjamanUang  Boolean           @default(true)
-  bulan           Int               @db.SmallInt
-  tahun           Int               @db.SmallInt
-  nilaiPinjaman   Decimal           @db.Decimal(16, 2)
-  jangkaWaktu     Int               @db.SmallInt
-  jenisBunga      String            @db.VarChar(7)
-  persenBunga     Decimal           @db.Decimal(6, 2)
-  biayaAdmin      Decimal           @db.Decimal(16, 2)
-  tanggalLunas    DateTime?         @db.Date
-  lunas           String            @db.VarChar(1)
-  RincianPinjaman RincianPinjaman[]
+  refCode            String            @id @unique @default(uuid()) @db.UniqueIdentifier
+  noAnggota          String            @db.VarChar(50)
+  Anggota            Anggota           @relation(fields: [noAnggota], references: [noAnggota])
+  tglPinjam          DateTime          @db.Date
+  isPinjamanUang     Boolean           @default(true)
+  bulan              Int               @db.SmallInt
+  tahun              Int               @db.SmallInt
+  nilaiPinjaman      Decimal           @db.Decimal(16, 2)
+  jangkaWaktu        Int               @db.SmallInt
+  jenisBunga         String            @db.VarChar(7)
+  persenBunga        Decimal           @db.Decimal(6, 2)
+  biayaAdmin         Decimal           @db.Decimal(16, 2)
+  tanggalLunas       DateTime?         @db.Date
+  lunas              String            @db.VarChar(1)
+  verificationStatus String            @default("APPROVED") @db.VarChar(20)
+  RincianPinjaman    RincianPinjaman[]
 
   @@map("pinjaman")
 }
@@ -244,7 +246,7 @@ model Pinjaman {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model RincianPinjaman {
   refCode    String    @db.UniqueIdentifier
-  Pinjaman   Pinjaman  @relation(fields: [refCode], references: [refCode])
+  Pinjaman   Pinjaman  @relation(fields: [refCode], references: [refCode], onDelete: Cascade)
   angKe      Int       @db.SmallInt
   bulan      Int       @db.SmallInt
   tahun      Int       @db.SmallInt

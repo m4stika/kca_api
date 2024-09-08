@@ -129,9 +129,9 @@ export class OrderService {
     return order; //this.toOrderResponse(contact);
   }
 
-  async getByMember(noAnggota: string): Promise<OrderResponse[]> {
+  async getByMember(noAnggota: string, orderStatus: string | undefined): Promise<OrderResponse[]> {
     const order = await this.prisma.order.findMany({
-      where: { noAnggota: noAnggota },
+      where: { noAnggota: noAnggota, orderStatus },
       include: { OrderDetail: { include: { Barang: true } } },
     });
 

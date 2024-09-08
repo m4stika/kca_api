@@ -15,9 +15,27 @@ export class PinjamanValidation {
     persenBunga: ZodDecimalPositive(),
     biayaAdmin: ZodDecimalPositive(),
     lunas: z.string().max(1).default('N'),
+    verificationStatus: z.string().default("ON_VERIFICATION")
   });
 
-  static readonly CREATE = this.baseSchema;
+  private static readonly baseRincianSchema = z.object({
+    refCode: z.string().optional(),
+    angKe: z.number(),
+    bulan: z.number(),
+    tahun: z.number(),
+    rpPinjaman: ZodDecimalPositive(),
+    rpBunga: ZodDecimalPositive(),
+    rpBayar: ZodDecimalPositive(),
+    blnLunas: z.number().optional(),
+    thnLunas: z.number().optional(),
+    tglLunas: z.coerce.date().optional(),
+    lunas: z.string().max(1).default("N"),
+    keterangan: z.string().optional()
+  })
+
+  static readonly CREATE = this.baseSchema.extend({
+    RincianPinjaman: z.array(this.baseRincianSchema)
+  });
 
   static readonly UPDATE = this.baseSchema;
 
@@ -27,6 +45,8 @@ export class PinjamanValidation {
     page: z.number().min(1).positive(),
     size: z.number().min(1).positive(),
   });
+
+  static readonly CREATEDETAIL = this.baseRincianSchema
 }
 
 const PinjamanResponse = PinjamanValidation.UPDATE.extend({
@@ -39,3 +59,4 @@ export type CreatePinjamanRequest = z.infer<typeof PinjamanValidation.CREATE>;
 export type UpdatePinjamanRequest = z.infer<typeof PinjamanValidation.UPDATE>;
 export type PinjamanResponse = z.infer<typeof PinjamanResponse>;
 export type SearchPinjamanRequest = z.infer<typeof PinjamanValidation.SEARCH>;
+export type PinjamanDetail = z.infer<typeof PinjamanValidation.CREATEDETAIL>;

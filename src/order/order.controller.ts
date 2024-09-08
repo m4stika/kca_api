@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
@@ -71,11 +72,12 @@ export class OrderController {
   async getByAnggota(
     @Auth() user: User,
     @Param('noAnggota') noAnggota: string,
+    @Query("orderStatus") orderStatus?: string,
   ): Promise<ApiResponse<OrderResponse[]>> {
     this.logger.debug(
-      `Controller.order.getByMember ${JSON.stringify({ username: user.username, noAnggota })}`,
+      `Controller.order.getByMember ${JSON.stringify({ username: user.username, noAnggota, orderStatus })}`,
     );
-    const result = await this.orderService.getByMember(noAnggota);
+    const result = await this.orderService.getByMember(noAnggota, orderStatus);
     return {
       status: 'success',
       data: result,

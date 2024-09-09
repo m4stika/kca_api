@@ -56,7 +56,7 @@ export class AnggotaService {
     // });
 
     const dataPinjaman = await this.prisma.pinjaman.findMany({
-      where: { noAnggota: noAnggota.toString(), lunas: 'N' },
+      where: { noAnggota: noAnggota.toString(), lunas: 'N', verificationStatus: "APPROVED" },
       select: { refCode: true, nilaiPinjaman: true },
     });
     const result = {

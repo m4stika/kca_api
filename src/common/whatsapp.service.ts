@@ -28,6 +28,7 @@ export class WhatsAppService implements OnModuleInit, OnModuleDestroy {
       printQRInTerminal: true,
       qrTimeout: 120000, // 2 minute
       logger: pino({ level: "silent" })
+      // logger: pino({ level: "info" })
       // logger: require('pino')({ level: 'silent' }),
     });
 

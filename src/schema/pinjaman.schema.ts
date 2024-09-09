@@ -19,22 +19,22 @@ export class PinjamanValidation {
   });
 
   private static readonly baseRincianSchema = z.object({
-    refCode: z.string().optional(),
+    refCode: z.string(),
     angKe: z.number(),
     bulan: z.number(),
     tahun: z.number(),
     rpPinjaman: ZodDecimalPositive(),
     rpBunga: ZodDecimalPositive(),
     rpBayar: ZodDecimalPositive(),
-    blnLunas: z.number().optional(),
-    thnLunas: z.number().optional(),
-    tglLunas: z.coerce.date().optional(),
+    blnLunas: z.number().nullish(),
+    thnLunas: z.number().nullish(),
+    tglLunas: z.coerce.date().nullish(),
     lunas: z.string().max(1).default("N"),
-    keterangan: z.string().optional()
+    keterangan: z.string().nullish()
   })
 
   static readonly CREATE = this.baseSchema.extend({
-    RincianPinjaman: z.array(this.baseRincianSchema)
+    RincianPinjaman: z.array(this.baseRincianSchema).optional()
   });
 
   static readonly UPDATE = this.baseSchema;

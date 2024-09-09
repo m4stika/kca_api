@@ -8,6 +8,7 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -68,22 +69,39 @@ export class PinjamanController {
     return await this.pinjamanService.search(user, member);
   }
 
-  @Get('byAnggota/:noAnggota')
+  // @Get('byAnggota/:noAnggota')
+  @Get('byAnggota')
   @HttpCode(HttpStatus.OK)
   async getByAnggota(
     @Auth() user: User,
-    @Param('noAnggota') noAnggota: string,
+    @Query('noAnggota') noAnggota: string,
+    @Query('status') verificationStatus?: string,
   ): Promise<ApiResponse<PinjamanResponse[]>> {
     this.logger.debug(
       `Controller.pinjaman.getByAnggota ${JSON.stringify({ username: user.username, noAnggota })}`,
     );
-    const result = await this.pinjamanService.getByAnggota(noAnggota);
+    const result = await this.pinjamanService.getByAnggota(noAnggota, verificationStatus);
     return {
       status: 'success',
       data: result,
     };
   }
 
+  @Get('onProgress/:noAnggota')
+  @HttpCode(HttpStatus.OK)
+  async onProgress(
+    @Auth() user: User,
+    @Param('noAnggota') noAnggota: string,
+  ): Promise<ApiResponse<CreatePinjamanRequest[]>> {
+    this.logger.debug(
+      `Controller.pinjaman.onProgress ${JSON.stringify({ username: user.username, noAnggota })}`,
+    );
+    const result = await this.pinjamanService.onProgress(noAnggota);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
 
   @Get('defaultInterestRate')
   @HttpCode(HttpStatus.OK)
@@ -128,6 +146,22 @@ export class PinjamanController {
       `Controller.pinjaman.update ${JSON.stringify({ ...request, username: user.username })}`,
     );
     const result = await this.pinjamanService.update(user, request);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Patch('cancel')
+  @HttpCode(HttpStatus.OK)
+  async cancel(
+    @Auth() user: User,
+    @Body() request: { refCode: string },
+  ): Promise<ApiResponse<string>> {
+    this.logger.debug(
+      `Controller.pinjaman.cancel ${JSON.stringify({ username: user.username, refCode: request.refCode })}`,
+    );
+    const result = await this.pinjamanService.cancel(request.refCode);
     return {
       status: 'success',
       data: result,

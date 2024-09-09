@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'src/common/prisma.service';
@@ -77,6 +77,15 @@ export class PinjamanService {
     let tahun = new Date().getFullYear()
     let bulan = new Date().getMonth()
 
+    const loanInDatabase = await this.prisma.pinjaman.findFirst({
+      where: { noAnggota: user.memberId, verificationStatus: { notIn: ["APPROVED", "CANCELED"] } },
+      select: { refCode: true }
+
+    })
+
+    if (loanInDatabase) throw new BadRequestException("Anda sudah pernah mengajukan permohonan pinjaman")
+    if (!RincianPinjaman) throw new BadRequestException("Rincian Pinjaman tidak boleh kosong")
+
     const requestValidation: Omit<CreatePinjamanRequest, "RincianPinjaman"> = {
       ...otherRequest,
       tglPinjam: new Date(request.tglPinjam),
@@ -85,7 +94,8 @@ export class PinjamanService {
       biayaAdmin: new Prisma.Decimal(Number(request.biayaAdmin)),
       verificationStatus: "ON_VERIFICATION"
     };
-    const rincianPinjaman: PinjamanDetail[] = RincianPinjaman.map(rincian => {
+
+    const rincianPinjaman: PinjamanDetail[] = RincianPinjaman?.map(rincian => {
       bulan++
       if (bulan === 13) {
         bulan = 1
@@ -127,9 +137,9 @@ export class PinjamanService {
     return pinjaman; //this.toPinjamanResponse(contact);
   }
 
-  async getByAnggota(noAnggota: string): Promise<PinjamanResponse[]> {
+  async getByAnggota(noAnggota: string, verificationStatus?: string): Promise<PinjamanResponse[]> {
     const pinjaman = await this.prisma.pinjaman.findMany({
-      where: { noAnggota, lunas: 'N' },
+      where: { noAnggota, lunas: 'N', verificationStatus },
       include: { RincianPinjaman: { where: { lunas: 'L' } } },
     });
 
@@ -150,6 +160,19 @@ export class PinjamanService {
     );
 
     return pinjamanResult;
+  }
+
+  async onProgress(noAnggota: string): Promise<CreatePinjamanRequest[]> {
+    const pinjaman = await this.prisma.pinjaman.findMany({
+      where: { noAnggota, verificationStatus: { not: "APPROVED" } },
+      include: { RincianPinjaman: true },
+    });
+
+    if (!pinjaman) {
+      throw new NotFoundException('pinjaman not found');
+    }
+
+    return pinjaman;
   }
 
   async getInterestRate() {
@@ -195,6 +218,17 @@ export class PinjamanService {
     });
 
     return `${refCode} has been Deleted`;
+  }
+
+  async cancel(refCode: string): Promise<string> {
+    await this.checkPinjamanMustExist(refCode);
+
+    await this.prisma.pinjaman.update({
+      where: { refCode },
+      data: { verificationStatus: "CANCELED" }
+    });
+
+    return 'Data has been canceled';
   }
 
   async search(

@@ -29,7 +29,7 @@ model User {
   phone    String    @db.VarChar(30)
   name     String?   @db.VarChar(100)
   Anggota  Anggota   @relation(fields: [memberId], references: [noAnggota])
-  Member   Member?
+  //Member   Member?
   sessions Session[] @relation("OnlineUsers")
   //Anggota  Anggota[]
 
@@ -48,151 +48,151 @@ model Session {
   @@map("sessions")
 }
 
-model Member {
-  id            Int             @id @default(autoincrement())
-  username      String          @unique @db.VarChar(50)
-  memberId      String          @unique @db.VarChar(30)
-  firstName     String          @db.VarChar(50)
-  lastName      String?         @db.VarChar(50)
-  email         String?         @db.VarChar(50)
-  phone         String?         @db.VarChar(20)
-  fullAddress   String?         @db.VarChar(200)
-  NIP           String?         @db.VarChar(30)
-  memberTypeId  Int?
-  unitId        Int?
-  subUnitId     Int?
-  voucherAmount Decimal         @default(0) @db.Decimal(16, 2)
-  Addresses     Address[]
-  LoanAccount   LoanAccount[]
-  MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
-  SubUnit       SubUnit?        @relation(fields: [subUnitId], references: [id])
-  Unit          Unit?           @relation(fields: [unitId], references: [id])
-  User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
-  SavingAccount SavingAccount[]
+//model Member {
+//  id            Int             @id @default(autoincrement())
+//  username      String          @unique @db.VarChar(50)
+//  memberId      String          @unique @db.VarChar(30)
+//  firstName     String          @db.VarChar(50)
+//  lastName      String?         @db.VarChar(50)
+//  email         String?         @db.VarChar(50)
+//  phone         String?         @db.VarChar(20)
+//  fullAddress   String?         @db.VarChar(200)
+//  NIP           String?         @db.VarChar(30)
+//  memberTypeId  Int?
+//  unitId        Int?
+//  subUnitId     Int?
+//  voucherAmount Decimal         @default(0) @db.Decimal(16, 2)
+//  Addresses     Address[]
+//  LoanAccount   LoanAccount[]
+//  MemberType    MemberType?     @relation(fields: [memberTypeId], references: [id])
+//  SubUnit       SubUnit?        @relation(fields: [subUnitId], references: [id])
+//  Unit          Unit?           @relation(fields: [unitId], references: [id])
+//  User          User            @relation(fields: [username], references: [username], onDelete: Cascade)
+//  SavingAccount SavingAccount[]
 
-  @@map("members")
-}
+//  @@map("members")
+//}
 
-model Address {
-  id         Int     @id @default(autoincrement())
-  street     String  @db.VarChar(200)
-  city       String? @db.VarChar(50)
-  province   String? @db.VarChar(50)
-  country    String  @db.VarChar(50)
-  postalCode String  @db.VarChar(10)
-  memberId   Int
-  Member     Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+//model Address {
+//  id         Int     @id @default(autoincrement())
+//  street     String  @db.VarChar(200)
+//  city       String? @db.VarChar(50)
+//  province   String? @db.VarChar(50)
+//  country    String  @db.VarChar(50)
+//  postalCode String  @db.VarChar(10)
+//  memberId   Int
+//  Member     Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
-  @@map("addresses")
-}
+//  @@map("addresses")
+//}
 
-model SavingAccount {
-  id                       Int          @id @default(autoincrement())
-  register_date            DateTime     @db.Date
-  principalDeposit         Decimal      @default(0) @db.Decimal(16, 2)
-  mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
-  voluntaryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
-  otherDeposit             Decimal      @default(0) @db.Decimal(16, 2)
-  savingAmount             Decimal      @default(0) @db.Decimal(16, 2)
-  voluntaryWithdrawalLimit Decimal      @default(0) @db.Decimal(16, 2)
-  otherWithdrawalLimit     Decimal      @default(0) @db.Decimal(16, 2)
-  withdrawalLimit          Decimal      @default(0) @db.Decimal(16, 2)
-  createdAt                DateTime     @default(now())
-  updatedAt                DateTime     @updatedAt
-  memberId                 Int
-  Deposit                  Deposit[]
-  Member                   Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  Withdrawal               Withdrawal[]
+//model SavingAccount {
+//  id                       Int          @id @default(autoincrement())
+//  register_date            DateTime     @db.Date
+//  principalDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+//  mandatoryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+//  voluntaryDeposit         Decimal      @default(0) @db.Decimal(16, 2)
+//  otherDeposit             Decimal      @default(0) @db.Decimal(16, 2)
+//  savingAmount             Decimal      @default(0) @db.Decimal(16, 2)
+//  voluntaryWithdrawalLimit Decimal      @default(0) @db.Decimal(16, 2)
+//  otherWithdrawalLimit     Decimal      @default(0) @db.Decimal(16, 2)
+//  withdrawalLimit          Decimal      @default(0) @db.Decimal(16, 2)
+//  createdAt                DateTime     @default(now())
+//  updatedAt                DateTime     @updatedAt
+//  memberId                 Int
+//  Deposit                  Deposit[]
+//  Member                   Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+//  Withdrawal               Withdrawal[]
 
-  @@map("saving_accounts")
-}
+// @@map("saving_accounts")
+//}
 
-model Deposit {
-  id               Int           @id @default(autoincrement())
-  savingAccountId  Int
-  deposit_date     DateTime      @db.Date
-  principalDeposit Decimal       @default(0) @db.Decimal(16, 2)
-  mandatoryDeposit Decimal       @default(0) @db.Decimal(16, 2)
-  voluntaryDeposit Decimal       @default(0) @db.Decimal(16, 2)
-  otherDeposit     Decimal       @default(0) @db.Decimal(16, 2)
-  depositAmount    Decimal       @default(0) @db.Decimal(16, 2)
-  SavingAccount    SavingAccount @relation(fields: [savingAccountId], references: [id])
+//model Deposit {
+//  id               Int           @id @default(autoincrement())
+//  savingAccountId  Int
+//  deposit_date     DateTime      @db.Date
+//  principalDeposit Decimal       @default(0) @db.Decimal(16, 2)
+//  mandatoryDeposit Decimal       @default(0) @db.Decimal(16, 2)
+//  voluntaryDeposit Decimal       @default(0) @db.Decimal(16, 2)
+//  otherDeposit     Decimal       @default(0) @db.Decimal(16, 2)
+//  depositAmount    Decimal       @default(0) @db.Decimal(16, 2)
+//  SavingAccount    SavingAccount @relation(fields: [savingAccountId], references: [id])
+//
+//  @@map("deposits")
+//}
 
-  @@map("deposits")
-}
+//model Withdrawal {
+//  id                  Int           @id @default(autoincrement())
+//  savingAccountId     Int
+//  withdrawal_date     DateTime      @db.Date
+//  voluntaryWithdrawal Decimal       @default(0) @db.Decimal(16, 2)
+//  otherWithdrawal     Decimal       @default(0) @db.Decimal(16, 2)
+//  withdrawalAmount    Decimal       @default(0) @db.Decimal(16, 2)
+//  SavingAccount       SavingAccount @relation(fields: [savingAccountId], references: [id])
 
-model Withdrawal {
-  id                  Int           @id @default(autoincrement())
-  savingAccountId     Int
-  withdrawal_date     DateTime      @db.Date
-  voluntaryWithdrawal Decimal       @default(0) @db.Decimal(16, 2)
-  otherWithdrawal     Decimal       @default(0) @db.Decimal(16, 2)
-  withdrawalAmount    Decimal       @default(0) @db.Decimal(16, 2)
-  SavingAccount       SavingAccount @relation(fields: [savingAccountId], references: [id])
+//  @@map("withdrawals")
+//}
 
-  @@map("withdrawals")
-}
+//model LoanAccount {
+//  id                   Int           @id @default(autoincrement())
+//  memberId             Int
+//  register_date        DateTime      @db.Date
+//  loanAmount           Decimal       @default(0) @db.Decimal(16, 2)
+//  loanTerm             Int           @default(12) @db.SmallInt
+//  interestPercent      Int           @default(0) @db.TinyInt
+//  installmentValue     Decimal       @default(0) @db.Decimal(16, 2)
+//  installmentPrincipal Decimal       @default(0) @db.Decimal(16, 2)
+//  installmentInterest  Decimal       @default(0) @db.Decimal(16, 2)
+//  principalPaid        Decimal       @default(0) @db.Decimal(16, 2)
+//  interestPaid         Decimal       @default(0) @db.Decimal(16, 2)
+//  paidValue            Decimal       @default(0) @db.Decimal(16, 2)
+//  principalBalance     Decimal       @default(0) @db.Decimal(16, 2)
+//  interestBalance      Decimal       @default(0) @db.Decimal(16, 2)
+//  loanBalance          Decimal       @default(0) @db.Decimal(16, 2)
+//  createdAt            DateTime      @default(now())
+//  updatedAt            DateTime      @updatedAt
+//  Member               Member        @relation(fields: [memberId], references: [id])
+//  LoanPayment          LoanPayment[]
 
-model LoanAccount {
-  id                   Int           @id @default(autoincrement())
-  memberId             Int
-  register_date        DateTime      @db.Date
-  loanAmount           Decimal       @default(0) @db.Decimal(16, 2)
-  loanTerm             Int           @default(12) @db.SmallInt
-  interestPercent      Int           @default(0) @db.TinyInt
-  installmentValue     Decimal       @default(0) @db.Decimal(16, 2)
-  installmentPrincipal Decimal       @default(0) @db.Decimal(16, 2)
-  installmentInterest  Decimal       @default(0) @db.Decimal(16, 2)
-  principalPaid        Decimal       @default(0) @db.Decimal(16, 2)
-  interestPaid         Decimal       @default(0) @db.Decimal(16, 2)
-  paidValue            Decimal       @default(0) @db.Decimal(16, 2)
-  principalBalance     Decimal       @default(0) @db.Decimal(16, 2)
-  interestBalance      Decimal       @default(0) @db.Decimal(16, 2)
-  loanBalance          Decimal       @default(0) @db.Decimal(16, 2)
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  Member               Member        @relation(fields: [memberId], references: [id])
-  LoanPayment          LoanPayment[]
+//  @@map("loan_accounts")
+//}
 
-  @@map("loan_accounts")
-}
+//model LoanPayment {
+//  id             Int         @id @default(autoincrement())
+//  loanAccountId  Int
+//  payment_date   DateTime    @db.Date
+//  installmentTo  Int         @default(0) @db.SmallInt
+//  principalValue Decimal     @default(0) @db.Decimal(16, 2)
+//  interestValue  Decimal     @default(0) @db.Decimal(16, 2)
+//  amount         Decimal     @default(0) @db.Decimal(16, 2)
+//  LoanAccount    LoanAccount @relation(fields: [loanAccountId], references: [id])
 
-model LoanPayment {
-  id             Int         @id @default(autoincrement())
-  loanAccountId  Int
-  payment_date   DateTime    @db.Date
-  installmentTo  Int         @default(0) @db.SmallInt
-  principalValue Decimal     @default(0) @db.Decimal(16, 2)
-  interestValue  Decimal     @default(0) @db.Decimal(16, 2)
-  amount         Decimal     @default(0) @db.Decimal(16, 2)
-  LoanAccount    LoanAccount @relation(fields: [loanAccountId], references: [id])
+//  @@map("loan_payments")
+//}
 
-  @@map("loan_payments")
-}
+//model MemberType {
+//  id     Int      @id @default(autoincrement())
+//  name   String   @db.VarChar(30)
+//  Member Member[]
 
-model MemberType {
-  id     Int      @id @default(autoincrement())
-  name   String   @db.VarChar(30)
-  Member Member[]
+//  @@map("member_types")
+//}
 
-  @@map("member_types")
-}
+//model Unit {
+//  id     Int      @id @default(autoincrement())
+//  name   String   @db.VarChar(30)
+//  Member Member[]
 
-model Unit {
-  id     Int      @id @default(autoincrement())
-  name   String   @db.VarChar(30)
-  Member Member[]
+//  @@map("units")
+//}
 
-  @@map("units")
-}
+//model SubUnit {
+//  id     Int      @id @default(autoincrement())
+//  name   String   @db.VarChar(30)
+//  Member Member[]
 
-model SubUnit {
-  id     Int      @id @default(autoincrement())
-  name   String   @db.VarChar(30)
-  Member Member[]
-
-  @@map("sub_units")
-}
+//  @@map("sub_units")
+//}
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Anggota {

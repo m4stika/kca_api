@@ -47,3 +47,10 @@
     add loan onProccess
     add loan cancelation
   ```
+- 1.4.2
+
+  ```what changed
+    modify prisma schema, remove unused table
+    remove unused module, controller and services
+    modify docker-compose.yml, add environment of DATABASE_URL and LOG_LEVEL
+  ```

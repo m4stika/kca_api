@@ -20,12 +20,15 @@ services:
   kca_api:
     container_name: kca_api
     restart: always
-    image: mastika/kca_api:1.4.1
+    image: mastika/kca_api:1.4.2
     build:
       context: ./
       dockerfile: Dockerfile
       args:
         - DOCKER_USER=$DOCKER_USER
+    environment:
+      DATABASE_URL: "sqlserver://sql_server:1433;database=kca_db;integratedSecurity=true;username=sa;password=mast8118;trustServerCertificate=true"
+      LOG_LEVEL: info
     logging:
       driver: "json-file"
       options:

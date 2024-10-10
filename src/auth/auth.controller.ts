@@ -26,14 +26,14 @@ import {
 } from 'src/schema/user.schema';
 import { Logger } from 'winston';
 import { AuthService } from './auth.service';
-import { WhatsAppService } from 'src/common/whatsapp.service';
+// import { WhatsAppService } from 'src/common/whatsapp.service';
 
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
-    private readonly whatsappService: WhatsAppService,
+    // private readonly whatsappService: WhatsAppService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) { }
 
@@ -86,13 +86,13 @@ export class AuthController {
       newUser = other;
     }
 
-    await this.whatsappService.sendMessage(newUser.phone, `
-*=== KCA-MOBILE ===* 
-
-Anda baru saja login dari ${userAgent}
-dengan user ${newUser.username}
-`)
-
+    //     await this.whatsappService.sendMessage(newUser.phone, `
+    // *=== KCA-MOBILE ===* 
+    //
+    // Anda baru saja login dari ${userAgent}
+    // dengan user ${newUser.username}
+    // `)
+    //
     response.status(HttpStatus.OK).json({
       status: 'success',
       data: newUser,
@@ -132,11 +132,12 @@ dengan user ${newUser.username}
     @Param('phoneNumber') phoneNumber: string,
   ): Promise<ApiResponse<boolean>> {
     this.logger.debug(`Controller.get.isValidPhoneNumber ${phoneNumber}`);
-    const isValid = await this.whatsappService.checkPhoneNumber(phoneNumber)
-    if (isValid) await this.whatsappService.sendMessage(phoneNumber, `
-*=== KCA-MOBILE ===* 
-Nomor ${phoneNumber} berhasil di validasi
-`)
+    const isValid = true
+    // const isValid = await this.whatsappService.checkPhoneNumber(phoneNumber)
+    //     if (isValid) await this.whatsappService.sendMessage(phoneNumber, `
+    // *=== KCA-MOBILE ===* 
+    // Nomor ${phoneNumber} berhasil di validasi
+    // `)
     if (!isValid) throw new BadRequestException(`Number ${phoneNumber} is not registered on Whatsapp`)
 
     return {

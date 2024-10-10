@@ -11,7 +11,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'src/common/prisma.service';
 import { TokenService } from 'src/common/token.service';
 import { ValidationService } from 'src/common/validation.service';
-import { WhatsAppService } from 'src/common/whatsapp.service';
+// import { WhatsAppService } from 'src/common/whatsapp.service';
 import {
   TSession,
   UserLoginRequest,
@@ -28,7 +28,7 @@ export class AuthService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prisma: PrismaService,
     private tokenService: TokenService,
-    private whatsappService: WhatsAppService
+    // private whatsappService: WhatsAppService
   ) { }
 
   register = async (
@@ -121,18 +121,18 @@ export class AuthService {
     const { accessToken, refreshToken } =
       await this.tokenService.signToken(payload);
 
-    await this.whatsappService.sendMessage(user.phone, `
-*=== KCA-MOBILE ===* 
-
-Selamat registrasi anda berhasil.
-silahkan Login menggunakan
-- username : ${user.username} / ${user.phone} / ${user.memberId}
-- password : ${newUser.password}
-
-Tunggu promo menarik dari kami. 
-
-Terimakasih.
-`)
+    // await this.whatsappService.sendMessage(user.phone, `
+    //  *=== KCA-MOBILE ===* 
+    //
+    //  Selamat registrasi anda berhasil.
+    //  silahkan Login menggunakan
+    //  - username : ${user.username} / ${user.phone} / ${user.memberId}
+    //  - password : ${newUser.password}
+    //
+    // Tunggu promo menarik dari kami. 
+    //
+    //  Terimakasih.
+    //  `)
     return { ...payload, accessToken, refreshToken };
   };
 

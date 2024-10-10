@@ -19,7 +19,6 @@ import { LoggerService } from './logger/logger.service';
 import { MulterConfigService } from './multer.service';
 import { PrismaService } from './prisma.service';
 import { ValidationService } from './validation.service';
-import { WhatsAppService } from './whatsapp.service';
 
 @Global()
 @Module({
@@ -51,13 +50,17 @@ import { WhatsAppService } from './whatsapp.service';
   providers: [
     ValidationService,
     PrismaService,
-    WhatsAppService,
+    // WhatsAppService,
     {
       provide: APP_FILTER,
       useClass: ErrorFilter,
     },
   ],
-  exports: [ValidationService, PrismaService, WhatsAppService, MulterModule],
+  exports: [
+    ValidationService, PrismaService,
+    // WhatsAppService, 
+    MulterModule
+  ],
 })
 export class CommonModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
